@@ -81,6 +81,13 @@ const PAGE_HTML = `<!doctype html>
         <button class="btn-secondary" id="checkFlag" type="button" style="margin-top:12px;">Check access</button>
       </div>
     </div>
+
+    <div class="card">
+      <h2>Changelog</h2>
+      <p style="color:var(--muted); font-size:0.85em; margin:0;">v2.1.0 — Migrated to this
+        profile microservice. Dependency audit deferred: <code>lodash</code> stayed pinned at
+        <code>4.17.4</code> to avoid breaking the merge logic before launch — revisit next sprint.</p>
+    </div>
   </main>
 
   <footer>WonderCorp Profile Settings · OWASP A06 training instance</footer>

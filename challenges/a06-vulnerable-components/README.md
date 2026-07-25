@@ -7,8 +7,10 @@
 A profile service. `POST /api/profile` merges your JSON body into a default
 profile object and echoes back the result.
 
-**Play it in the browser** — open http://localhost:9006, edit the JSON in the
-textarea, click "POST /api/profile", then "GET /api/flag".
+**Play it in the browser** — open http://localhost:9006. The page's Changelog
+card names the exact dependency and version (`lodash 4.17.4`) — that's your
+lead; look up known CVEs for it. Then edit the JSON in the "Advanced" textarea,
+click "Apply settings", and check "Admin Tools".
 
 ## The bug
 
