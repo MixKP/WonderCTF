@@ -1,0 +1,106 @@
+# Isolation model:
+#   1. Deny all ingress and egress by default for every pod in the namespace.
+#   2. Every pod may still reach kube-dns (needed by platform-api to resolve
+#      "db", and harmless for everything else).
+#   3. frontend <-> platform-api and platform-api <-> db are explicitly
+#      allowed, in both directions (NetworkPolicy egress on the source pod
+#      AND ingress on the destination pod are both required).
+#   4. Challenge pods get NO additional rules: no ingress from anywhere in
+#      the cluster, no egress to the platform DB or to each other. Even if a
+#      challenge's application-layer bug (e.g. a10's SSRF) is exploited, the
+#      network layer stops it from reaching anything but its own pod.
+#
+# kubectl port-forward is NOT pod-to-pod Service traffic — it's injected
+# directly into the pod's network namespace by the kubelet — so it is not
+# affected by any of these policies. That's how local access to every
+# challenge and to the platform stays simple despite the deny-all posture.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: ctf-demo
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns-egress
+  namespace: ctf-demo
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-egress-to-platform-api
+  namespace: ctf-demo
+spec:
+  podSelector:
+    matchLabels: { app: frontend }
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels: { app: platform-api }
+      ports:
+        - { protocol: TCP, port: 8080 }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: platform-api-ingress-from-frontend
+  namespace: ctf-demo
+spec:
+  podSelector:
+    matchLabels: { app: platform-api }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: { app: frontend }
+      ports:
+        - { protocol: TCP, port: 8080 }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: platform-api-egress-to-db
+  namespace: ctf-demo
+spec:
+  podSelector:
+    matchLabels: { app: platform-api }
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels: { app: db }
+      ports:
+        - { protocol: TCP, port: 5432 }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: db-ingress-from-platform-api
+  namespace: ctf-demo
+spec:
+  podSelector:
+    matchLabels: { app: db }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: { app: platform-api }
+      ports:
+        - { protocol: TCP, port: 5432 }

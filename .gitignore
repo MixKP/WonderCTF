@@ -1,0 +1,30 @@
+# Go
+platform/bin/
+challenges/**/bin/
+*.test
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+challenges/**/node_modules/
+challenges/**/dist/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+
+# Trivy reports
+trivy-reports/
+*.trivy.json
+
+# IDE
+.vscode/
+.idea/
+
+# k8s local
+deploy/k8s/overlays/local/*.kubeconfig

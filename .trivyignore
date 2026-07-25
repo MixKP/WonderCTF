@@ -1,0 +1,27 @@
+# Documented, deliberate exceptions only — see scripts/trivy-scan.sh for how
+# this file is used.
+#
+# challenges/a06-vulnerable-components ships a pinned, ancient lodash
+# (4.17.4) specifically to demonstrate OWASP A06. That one dependency alone
+# carries a dozen-plus CVEs (plus more from npm's own bundled tooling in the
+# base node image), and the list drifts every time Trivy's DB updates — hand
+# -maintaining every CVE ID here would be a losing game and would hide real
+# signal behind stale entries. So a06 is scanned in *report-only* mode in
+# both `make scan` and CI (never gates the build), and is not otherwise
+# listed here.
+#
+# This single entry exists to document the specific CVE the challenge's
+# README walks through as the intended exploit, and to show the ignorefile
+# mechanism is in use — not to suppress a06's scan results generally.
+CVE-2018-3721
+
+# deploy/k8s/base/db.yaml: the official postgres image drops root privileges
+# internally via its own entrypoint (gosu) rather than declaring a non-root
+# USER, so it can't be forced to runAsNonRoot or a read-only rootfs without
+# switching to a custom/non-root postgres image — out of scope for this demo.
+# In this repo these two checks only ever fire on that one StatefulSet (every
+# other workload sets an explicit hardened securityContext — see
+# platform-api.yaml, frontend.yaml, challenges.yaml), so a global ignore is
+# safe in practice despite not being path-scoped.
+KSV-0014
+KSV-0118

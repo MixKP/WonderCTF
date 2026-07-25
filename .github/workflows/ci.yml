@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  platform-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: platform/go.mod
+      - run: go build ./...
+        working-directory: platform
+      - run: go vet ./...
+        working-directory: platform
+      - run: test -z "$(gofmt -l .)"
+        working-directory: platform
+      - run: go test ./...
+        working-directory: platform
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npx vue-tsc --noEmit
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+
+  build-images:
+    runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.list.outputs.images }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list
+        run: |
+          echo "images=platform frontend a01-broken-access-control a02-crypto-failures a03-injection a04-insecure-design a05-security-misconfig a06-vulnerable-components a07-auth-failures a08-integrity-failures a09-logging-failures a10-ssrf" >> "$GITHUB_OUTPUT"
+      - run: docker build -t ctf/platform:local ./platform
+      - run: docker build -t ctf/frontend:local ./frontend
+      - run: |
+          for d in a01-broken-access-control a02-crypto-failures a03-injection \
+                   a04-insecure-design a05-security-misconfig a06-vulnerable-components \
+                   a07-auth-failures a08-integrity-failures a09-logging-failures a10-ssrf; do
+            docker build -t "ctf/$d:local" "./challenges/$d"
+          done
+      - run: docker save $(docker images 'ctf/*:local' --format '{{.Repository}}:{{.Tag}}') -o /tmp/ctf-images.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ctf-images
+          path: /tmp/ctf-images.tar
+          retention-days: 1
+
+  # Every image except a06 must have zero HIGH/CRITICAL vulnerabilities with
+  # an available fix. a06 deliberately ships a large, outdated dependency
+  # surface (see .trivyignore) and is scanned separately in report-only mode.
+  trivy-images:
+    needs: build-images
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - platform
+          - frontend
+          - a01-broken-access-control
+          - a02-crypto-failures
+          - a03-injection
+          - a04-insecure-design
+          - a05-security-misconfig
+          - a07-auth-failures
+          - a08-integrity-failures
+          - a09-logging-failures
+          - a10-ssrf
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ctf-images
+          path: /tmp
+      - run: docker load -i /tmp/ctf-images.tar
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ctf/${{ matrix.image }}:local
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+          trivyignores: .trivyignore
+
+  trivy-a06-report:
+    needs: build-images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ctf-images
+          path: /tmp
+      - run: docker load -i /tmp/ctf-images.tar
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ctf/a06-vulnerable-components:local
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 0
+          trivyignores: .trivyignore
+
+  trivy-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: config
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: 1
+          trivyignores: .trivyignore

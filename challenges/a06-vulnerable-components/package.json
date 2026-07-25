@@ -1,0 +1,14 @@
+{
+  "name": "a06-vulnerable-components",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OWASP A06 demo: prototype pollution via a pinned, outdated lodash version (CVE-2018-3721 / CVE-2019-10744).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "lodash": "4.17.4"
+  }
+}

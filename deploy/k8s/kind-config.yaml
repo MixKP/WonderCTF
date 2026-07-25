@@ -1,0 +1,12 @@
+# Local kind cluster config. Disables kindnetd (kind's default CNI, which
+# does not enforce NetworkPolicy) so Calico can be installed instead — the
+# NetworkPolicies in deploy/k8s/base/networkpolicies.yaml are a real,
+# load-bearing part of this project's isolation story, not decoration, so
+# testing them locally means running a CNI that actually enforces them.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  disableDefaultCNI: true
+  podSubnet: "10.244.0.0/16"
+nodes:
+  - role: control-plane

@@ -1,0 +1,20 @@
+# The base manifests already target a local workflow directly: images are
+# tagged `:local` with imagePullPolicy: IfNotPresent (load them into your
+# cluster with `kind load docker-image ...`), and every Service is
+# ClusterIP — access is via `kubectl port-forward`, which works the same way
+# whether or not NetworkPolicies are enforced (see base/networkpolicies.yaml).
+#
+# This overlay exists as the place to diverge for your machine: bump
+# resource limits, add a NodePort/Ingress if you'd rather not port-forward,
+# or point at a registry instead of `:local` images.
+#
+# Deliberately no commonLabels/labels transformer here: kustomize's
+# includeSelectors rewrites every podSelector it finds, including the
+# allow-dns-egress NetworkPolicy's cross-namespace selector for CoreDNS
+# (kube-system) — a namespace this kustomization doesn't own and shouldn't
+# be labeling. That mismatch silently breaks DNS for the whole namespace.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base

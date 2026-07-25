@@ -1,0 +1,88 @@
+# Demo-grade secret — replace with a real secret manager (or at minimum a
+# sealed-secret / external-secrets integration) before this ever runs
+# anywhere but a local cluster.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+  namespace: ctf-demo
+type: Opaque
+stringData:
+  POSTGRES_USER: ctf
+  POSTGRES_PASSWORD: change-me-locally
+  POSTGRES_DB: ctf_platform
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: ctf-demo
+  labels:
+    app: db
+spec:
+  clusterIP: None
+  selector:
+    app: db
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+# The official postgres image drops root privileges internally via its own
+# entrypoint (gosu), so it can't be forced to runAsNonRoot or a read-only
+# rootfs at the pod level without a custom image — left at defaults
+# deliberately. Trivy correctly flags this (KSV-0014, KSV-0118); see
+# .trivyignore for the documented, scoped exception.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+  namespace: ctf-demo
+  labels:
+    app: db
+spec:
+  serviceName: db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: db-credentials
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "ctf", "-d", "ctf_platform"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "ctf", "-d", "ctf_platform"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

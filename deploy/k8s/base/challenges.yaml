@@ -1,0 +1,326 @@
+# All ten OWASP Top 10 challenge services. Each is a single-container
+# Deployment + ClusterIP Service. None of them are granted any ingress or
+# egress beyond DNS by the NetworkPolicies in networkpolicies.yaml — they
+# cannot reach the platform database, the platform API, or each other.
+# Local access is via `kubectl port-forward`, which bypasses NetworkPolicy
+# enforcement entirely (see deploy/k8s/README.md).
+apiVersion: v1
+kind: Service
+metadata:
+  name: a01-broken-access-control
+  namespace: ctf-demo
+  labels: { app: a01-broken-access-control }
+spec:
+  selector: { app: a01-broken-access-control }
+  ports: [{ port: 8080, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a01-broken-access-control
+  namespace: ctf-demo
+  labels: { app: a01-broken-access-control }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: a01-broken-access-control } }
+  template:
+    metadata: { labels: { app: a01-broken-access-control } }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: challenge
+          image: ctf/a01-broken-access-control:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
+          readinessProbe: { httpGet: { path: /healthz, port: 8080 }, initialDelaySeconds: 2, periodSeconds: 5 }
+          resources: { requests: { cpu: 25m, memory: 16Mi }, limits: { cpu: 100m, memory: 64Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a02-crypto-failures
+  namespace: ctf-demo
+  labels: { app: a02-crypto-failures }
+spec:
+  selector: { app: a02-crypto-failures }
+  ports: [{ port: 8080, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a02-crypto-failures
+  namespace: ctf-demo
+  labels: { app: a02-crypto-failures }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: a02-crypto-failures } }
+  template:
+    metadata: { labels: { app: a02-crypto-failures } }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: challenge
+          image: ctf/a02-crypto-failures:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
+          readinessProbe: { httpGet: { path: /healthz, port: 8080 }, initialDelaySeconds: 2, periodSeconds: 5 }
+          resources: { requests: { cpu: 25m, memory: 16Mi }, limits: { cpu: 100m, memory: 64Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a03-injection
+  namespace: ctf-demo
+  labels: { app: a03-injection }
+spec:
+  selector: { app: a03-injection }
+  ports: [{ port: 8080, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a03-injection
+  namespace: ctf-demo
+  labels: { app: a03-injection }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: a03-injection } }
+  template:
+    metadata: { labels: { app: a03-injection } }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: challenge
+          image: ctf/a03-injection:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
+          readinessProbe: { httpGet: { path: /healthz, port: 8080 }, initialDelaySeconds: 2, periodSeconds: 5 }
+          resources: { requests: { cpu: 25m, memory: 16Mi }, limits: { cpu: 100m, memory: 64Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a04-insecure-design
+  namespace: ctf-demo
+  labels: { app: a04-insecure-design }
+spec:
+  selector: { app: a04-insecure-design }
+  ports: [{ port: 8080, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a04-insecure-design
+  namespace: ctf-demo
+  labels: { app: a04-insecure-design }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: a04-insecure-design } }
+  template:
+    metadata: { labels: { app: a04-insecure-design } }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: challenge
+          image: ctf/a04-insecure-design:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
+          readinessProbe: { httpGet: { path: /healthz, port: 8080 }, initialDelaySeconds: 2, periodSeconds: 5 }
+          resources: { requests: { cpu: 25m, memory: 16Mi }, limits: { cpu: 100m, memory: 64Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a05-security-misconfig
+  namespace: ctf-demo
+  labels: { app: a05-security-misconfig }
+spec:
+  selector: { app: a05-security-misconfig }
+  ports: [{ port: 8080, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a05-security-misconfig
+  namespace: ctf-demo
+  labels: { app: a05-security-misconfig }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: a05-security-misconfig } }
+  template:
+    metadata: { labels: { app: a05-security-misconfig } }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: challenge
+          image: ctf/a05-security-misconfig:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
+          readinessProbe: { httpGet: { path: /healthz, port: 8080 }, initialDelaySeconds: 2, periodSeconds: 5 }
+          resources: { requests: { cpu: 25m, memory: 16Mi }, limits: { cpu: 100m, memory: 64Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a06-vulnerable-components
+  namespace: ctf-demo
+  labels: { app: a06-vulnerable-components }
+spec:
+  selector: { app: a06-vulnerable-components }
+  ports: [{ port: 8080, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a06-vulnerable-components
+  namespace: ctf-demo
+  labels: { app: a06-vulnerable-components }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: a06-vulnerable-components } }
+  template:
+    metadata: { labels: { app: a06-vulnerable-components } }
+    spec:
+      # Node/Alpine image, UID 1001 — see challenges/a06-vulnerable-components/Dockerfile.
+      securityContext: { runAsNonRoot: true, runAsUser: 1001, runAsGroup: 1001, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: challenge
+          image: ctf/a06-vulnerable-components:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
+          readinessProbe: { httpGet: { path: /healthz, port: 8080 }, initialDelaySeconds: 2, periodSeconds: 5 }
+          resources: { requests: { cpu: 25m, memory: 32Mi }, limits: { cpu: 150m, memory: 128Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a07-auth-failures
+  namespace: ctf-demo
+  labels: { app: a07-auth-failures }
+spec:
+  selector: { app: a07-auth-failures }
+  ports: [{ port: 8080, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a07-auth-failures
+  namespace: ctf-demo
+  labels: { app: a07-auth-failures }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: a07-auth-failures } }
+  template:
+    metadata: { labels: { app: a07-auth-failures } }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: challenge
+          image: ctf/a07-auth-failures:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
+          readinessProbe: { httpGet: { path: /healthz, port: 8080 }, initialDelaySeconds: 2, periodSeconds: 5 }
+          resources: { requests: { cpu: 25m, memory: 16Mi }, limits: { cpu: 100m, memory: 64Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a08-integrity-failures
+  namespace: ctf-demo
+  labels: { app: a08-integrity-failures }
+spec:
+  selector: { app: a08-integrity-failures }
+  ports: [{ port: 8080, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a08-integrity-failures
+  namespace: ctf-demo
+  labels: { app: a08-integrity-failures }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: a08-integrity-failures } }
+  template:
+    metadata: { labels: { app: a08-integrity-failures } }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: challenge
+          image: ctf/a08-integrity-failures:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
+          readinessProbe: { httpGet: { path: /healthz, port: 8080 }, initialDelaySeconds: 2, periodSeconds: 5 }
+          resources: { requests: { cpu: 25m, memory: 16Mi }, limits: { cpu: 100m, memory: 64Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a09-logging-failures
+  namespace: ctf-demo
+  labels: { app: a09-logging-failures }
+spec:
+  selector: { app: a09-logging-failures }
+  ports: [{ port: 8080, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a09-logging-failures
+  namespace: ctf-demo
+  labels: { app: a09-logging-failures }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: a09-logging-failures } }
+  template:
+    metadata: { labels: { app: a09-logging-failures } }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: challenge
+          image: ctf/a09-logging-failures:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
+          readinessProbe: { httpGet: { path: /healthz, port: 8080 }, initialDelaySeconds: 2, periodSeconds: 5 }
+          resources: { requests: { cpu: 25m, memory: 16Mi }, limits: { cpu: 100m, memory: 64Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a10-ssrf
+  namespace: ctf-demo
+  labels: { app: a10-ssrf }
+spec:
+  selector: { app: a10-ssrf }
+  ports: [{ port: 8080, targetPort: 8080 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a10-ssrf
+  namespace: ctf-demo
+  labels: { app: a10-ssrf }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: a10-ssrf } }
+  template:
+    metadata: { labels: { app: a10-ssrf } }
+    spec:
+      securityContext: { runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, seccompProfile: { type: RuntimeDefault } }
+      containers:
+        - name: challenge
+          image: ctf/a10-ssrf:local
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 8080 }]
+          securityContext: { allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: { drop: ["ALL"] } }
+          readinessProbe: { httpGet: { path: /healthz, port: 8080 }, initialDelaySeconds: 2, periodSeconds: 5 }
+          resources: { requests: { cpu: 25m, memory: 16Mi }, limits: { cpu: 100m, memory: 64Mi } }

@@ -1,0 +1,138 @@
+name: ctf-demo
+
+networks:
+  platform-net: {}
+  a01-net: {}
+  a02-net: {}
+  a03-net: {}
+  a04-net: {}
+  a05-net: {}
+  a06-net: {}
+  a07-net: {}
+  a08-net: {}
+  a09-net: {}
+  a10-net: {}
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ctf}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-locally}
+      POSTGRES_DB: ${POSTGRES_DB:-ctf_platform}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks: [platform-net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ctf} -d ${POSTGRES_DB:-ctf_platform}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  platform-api:
+    build: ./platform
+    image: ctf/platform:local
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://ctf:change-me-locally@db:5432/ctf_platform?sslmode=disable}
+      JWT_SECRET: ${JWT_SECRET:-change-me-to-a-long-random-string}
+      PLATFORM_PORT: 8080
+      CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-http://localhost:5173}
+    ports:
+      - "8080:8080"
+    networks: [platform-net]
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/app/api", "healthcheck"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+    image: ctf/frontend:local
+    restart: unless-stopped
+    ports:
+      - "5173:8080"
+    networks: [platform-net]
+    depends_on: [platform-api]
+
+  a01-broken-access-control:
+    build: ./challenges/a01-broken-access-control
+    image: ctf/a01-broken-access-control:local
+    restart: unless-stopped
+    ports: ["${A01_PORT:-9001}:8080"]
+    networks: [a01-net]
+
+  a02-crypto-failures:
+    build: ./challenges/a02-crypto-failures
+    image: ctf/a02-crypto-failures:local
+    restart: unless-stopped
+    ports: ["${A02_PORT:-9002}:8080"]
+    networks: [a02-net]
+
+  a03-injection:
+    build: ./challenges/a03-injection
+    image: ctf/a03-injection:local
+    restart: unless-stopped
+    ports: ["${A03_INJECTION_PORT:-9003}:8080"]
+    networks: [a03-net]
+
+  a04-insecure-design:
+    build: ./challenges/a04-insecure-design
+    image: ctf/a04-insecure-design:local
+    restart: unless-stopped
+    ports: ["${A04_PORT:-9004}:8080"]
+    networks: [a04-net]
+
+  a05-security-misconfig:
+    build: ./challenges/a05-security-misconfig
+    image: ctf/a05-security-misconfig:local
+    restart: unless-stopped
+    ports: ["${A05_PORT:-9005}:8080"]
+    networks: [a05-net]
+
+  a06-vulnerable-components:
+    build: ./challenges/a06-vulnerable-components
+    image: ctf/a06-vulnerable-components:local
+    restart: unless-stopped
+    ports: ["${A06_PORT:-9006}:8080"]
+    networks: [a06-net]
+
+  a07-auth-failures:
+    build: ./challenges/a07-auth-failures
+    image: ctf/a07-auth-failures:local
+    restart: unless-stopped
+    ports: ["${A07_PORT:-9007}:8080"]
+    networks: [a07-net]
+
+  a08-integrity-failures:
+    build: ./challenges/a08-integrity-failures
+    image: ctf/a08-integrity-failures:local
+    restart: unless-stopped
+    ports: ["${A08_PORT:-9008}:8080"]
+    networks: [a08-net]
+
+  a09-logging-failures:
+    build: ./challenges/a09-logging-failures
+    image: ctf/a09-logging-failures:local
+    restart: unless-stopped
+    ports: ["${A09_PORT:-9009}:8080"]
+    networks: [a09-net]
+
+  a10-ssrf:
+    build: ./challenges/a10-ssrf
+    image: ctf/a10-ssrf:local
+    restart: unless-stopped
+    ports: ["${A10_PORT:-9010}:8080"]
+    networks: [a10-net]
+
+volumes:
+  db-data: {}
