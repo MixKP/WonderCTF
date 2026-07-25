@@ -25,3 +25,12 @@ CVE-2018-3721
 # safe in practice despite not being path-scoped.
 KSV-0014
 KSV-0118
+
+# frontend base image (nginx:1.29-alpine-slim): OpenSSL heap use-after-free
+# in PKCS7_verify(). Fixed upstream in libcrypto3/libssl3 3.5.7-r0, but as of
+# this writing nginx has not republished the alpine-slim image against the
+# patched Alpine package (installed version is still 3.5.6-r0) — there is no
+# newer tag to move to yet. Not our code, nothing we can do but wait.
+# Re-check `docker pull nginx:1.29-alpine-slim && trivy image ...` — once a
+# rebuilt image picks up 3.5.7-r0, remove this entry.
+CVE-2026-45447
