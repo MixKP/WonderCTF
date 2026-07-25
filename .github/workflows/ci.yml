@@ -90,7 +90,7 @@ jobs:
           name: ctf-images
           path: /tmp
       - run: docker load -i /tmp/ctf-images.tar
-      - uses: aquasecurity/trivy-action@0.28.0
+      - uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ctf/${{ matrix.image }}:local
           severity: HIGH,CRITICAL
@@ -108,7 +108,7 @@ jobs:
           name: ctf-images
           path: /tmp
       - run: docker load -i /tmp/ctf-images.tar
-      - uses: aquasecurity/trivy-action@0.28.0
+      - uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ctf/a06-vulnerable-components:local
           severity: HIGH,CRITICAL
@@ -120,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: aquasecurity/trivy-action@0.28.0
+      - uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: config
           scan-ref: .
