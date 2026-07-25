@@ -85,15 +85,16 @@ const pageHTML = `<!doctype html>
       <div id="step2" class="step2">
         <h1>Enter your code</h1>
         <div class="sub" id="sentTo">We sent a reset code — check your inbox.</div>
+        <div class="sandbox-hint">This sandbox doesn't actually send email — nothing will
+          arrive in any inbox. Instead, here's the live value the reset code is generated
+          from: <strong id="clock">—</strong></div>
         <form id="resetForm">
           <label>Reset code</label>
-          <input id="code" name="token" autocomplete="off" placeholder="000000">
+          <input id="code" name="token" autocomplete="off" placeholder="paste the number above">
           <label>New password</label>
           <input name="newPassword" autocomplete="off" value="hacked123">
           <button type="submit">Reset password</button>
         </form>
-        <div class="sandbox-hint">Sandbox mode — real deployments email this code. For testing,
-          here's the recovery server's clock: <strong id="clock">—</strong></div>
       </div>
 
       <div class="status-msg" id="statusMsg" style="display:none;"></div>
