@@ -66,7 +66,9 @@ const PAGE_HTML = `<!doctype html>
          sprint. Whoever wrote it was clearly optimizing for velocity.</p>
       <div class="pref-row"><span>Theme</span><span>dark</span></div>
       <div class="pref-row"><span>Notifications</span><span>on</span></div>
-      <div class="pref-row"><span>Admin</span><span>No</span></div>
+      <p style="color:var(--muted); font-size:0.8em; margin:10px 0 0;">This is a static reference
+        card — it never changes, no matter what you submit below. For what it's worth, the
+        underlying profile object also supports an <code>isAdmin</code> field, off by default.</p>
     </div>
 
     <div class="card">
