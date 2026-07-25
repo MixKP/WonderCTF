@@ -21,47 +21,69 @@ const defaultProfile = { theme: 'dark', notifications: true }
 
 const PAGE_HTML = `<!doctype html>
 <html>
-<head><title>A06: Vulnerable Components — Old Dependency, New Exploit</title>
+<head>
+<meta charset="utf-8">
+<title>WonderCorp — Profile Settings</title>
 <style>
-  :root { --accent: #22c55e; --accent-bg: #14320f; }
+  :root { --accent: #22c55e; --bg: #0a0a0f; --panel: #131318; --border: #22222b; --text: #e5e7eb; --muted: #9199a8; }
   * { box-sizing: border-box; }
-  body { font-family: 'Fira Code', ui-monospace, monospace; background: radial-gradient(circle at top, #0f1a10, #05070d 65%); color: #e5e7eb; max-width: 680px; margin: 48px auto; padding: 0 20px; line-height: 1.5; }
-  .badge { display: inline-block; font-size: 0.75em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; margin-bottom: 12px; }
-  h1 { color: #f8fafc; font-size: 1.6em; margin: 4px 0 6px; }
-  code { background: #0e1810; padding: 2px 6px; border-radius: 3px; color: var(--accent); }
-  .banner { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #fde68a; padding: 10px 14px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9em; }
-  fieldset { border: 1px solid #1c3320; border-radius: 10px; margin: 18px 0; padding: 14px 16px; background: rgba(255,255,255,0.02); }
-  legend { padding: 0 8px; color: var(--accent); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; }
-  textarea { display: block; margin: 8px 0; padding: 10px; width: 100%; background: #0a140b; border: 1px solid #1c3320; border-radius: 6px; color: #e5e7eb; font-family: inherit; height: 80px; }
-  button { padding: 10px 18px; background: var(--accent); color: #042808; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 8px; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  .disclosure { background: #0f2e17; color: #86efac; font-size: 0.8em; text-align: center; padding: 6px 12px; }
+  header { display: flex; align-items: center; gap: 10px; padding: 16px 32px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 1.1em; }
+  .brand-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.1em; }
+  main { max-width: 560px; margin: 0 auto; padding: 40px 24px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  h2 { font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 16px; }
+  .story { font-style: italic; color: var(--muted); font-size: 0.85em; margin: -6px 0 16px; }
+  .pref-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9em; }
+  .pref-row:last-child { border-bottom: none; }
+  select { background: #0d0d12; color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-family: inherit; }
+  textarea { display: block; margin: 8px 0; padding: 10px; width: 100%; background: #0a140b; border: 1px solid #1c3320; border-radius: 6px; color: #e5e7eb; font-family: ui-monospace, monospace; font-size: 0.85em; height: 90px; }
+  button { padding: 9px 16px; background: var(--accent); color: #042808; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9em; font-family: inherit; }
   button:hover { filter: brightness(1.1); }
-  pre { background: #0a140b; border: 1px solid #1c3320; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
-  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
+  .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  pre { background: #0a140b; border: 1px solid #1c3320; padding: 12px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; font-size: 0.8em; margin-top: 12px; }
+  .admin-panel { text-align: center; padding: 20px; color: var(--muted); }
+  .admin-panel .lock { font-size: 1.8em; margin-bottom: 8px; }
+  .admin-panel.unlocked { color: #86efac; }
+  footer { text-align: center; color: var(--muted); font-size: 0.75em; padding: 24px; }
 </style>
 </head>
 <body>
-  <span class="badge">📦 OWASP A06</span>
-  <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
-  <h1>Profile Service</h1>
-  <p class="story">The new profile microservice replaced three legacy ones in a single
-     sprint. Whoever wrote it was clearly optimizing for velocity.</p>
-  <p>This service ships an outdated, known-vulnerable dependency (see README for the CVE).
-     Whatever JSON object you send here gets merged into a default profile server-side.</p>
+  <div class="disclosure">⚠️ Intentionally vulnerable training service (OWASP A06: Vulnerable and Outdated Components) — not for production use</div>
+  <header><span class="brand-icon">📦</span> WonderCorp Profile Settings</header>
 
-  <fieldset>
-    <legend>1. Update profile</legend>
-    <form id="profileForm">
-      <textarea name="body" spellcheck="false">{"theme":"light"}</textarea>
-      <button type="submit">POST /api/profile</button>
-    </form>
-  </fieldset>
+  <main>
+    <div class="card">
+      <h2>Preferences</h2>
+      <p class="story">The new profile microservice replaced three legacy ones in a single
+         sprint. Whoever wrote it was clearly optimizing for velocity.</p>
+      <div class="pref-row"><span>Theme</span><span>dark</span></div>
+      <div class="pref-row"><span>Notifications</span><span>on</span></div>
+    </div>
 
-  <fieldset>
-    <legend>2. Check flag (admin only)</legend>
-    <button id="checkFlag" type="button">GET /api/flag</button>
-  </fieldset>
+    <div class="card">
+      <h2>Advanced — Developer Mode</h2>
+      <p style="color:var(--muted); font-size:0.85em; margin-top:-8px;">Import a raw settings
+        object. Whatever you send here gets merged into your profile server-side.</p>
+      <form id="profileForm">
+        <textarea name="body" spellcheck="false">{"theme":"light"}</textarea>
+        <button type="submit">Apply settings</button>
+      </form>
+      <pre id="result" style="display:none;"></pre>
+    </div>
 
-  <pre id="result">(nothing yet)</pre>
+    <div class="card">
+      <h2>Admin Tools</h2>
+      <div class="admin-panel" id="adminPanel">
+        <div class="lock">🔒</div>
+        <div>Requires administrator access</div>
+        <button class="btn-secondary" id="checkFlag" type="button" style="margin-top:12px;">Check access</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>WonderCorp Profile Settings · OWASP A06 training instance</footer>
 
 <script>
 const result = document.getElementById('result');
@@ -73,6 +95,7 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
   try {
     parsed = JSON.parse(fd.get('body'));
   } catch (err) {
+    result.style.display = 'block';
     result.textContent = 'Invalid JSON: ' + err.message;
     return;
   }
@@ -81,12 +104,20 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(parsed),
   });
+  result.style.display = 'block';
   result.textContent = JSON.stringify(await res.json(), null, 2);
 });
 
 document.getElementById('checkFlag').addEventListener('click', async () => {
   const res = await fetch('/api/flag');
-  result.textContent = JSON.stringify(await res.json(), null, 2);
+  const data = await res.json();
+  const panel = document.getElementById('adminPanel');
+  if (res.ok) {
+    panel.classList.add('unlocked');
+    panel.innerHTML = '<div class="lock">🔓</div><div>Access granted.</div><div style="margin-top:8px; font-family:ui-monospace,monospace;">' + data.flag + '</div>';
+  } else {
+    panel.querySelector('div:nth-child(2)').textContent = data.error;
+  }
 });
 </script>
 </body>

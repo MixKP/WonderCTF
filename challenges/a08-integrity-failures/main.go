@@ -31,62 +31,77 @@ type restoreRequest struct {
 
 const pageHTML = `<!doctype html>
 <html>
-<head><title>A08: Integrity Failures — Untrusted Payload</title>
+<head>
+<meta charset="utf-8">
+<title>WonderCorp Quick Sync</title>
 <style>
-  :root { --accent: #14b8a6; --accent-bg: #0f3d38; }
+  :root { --accent: #14b8a6; --bg: #0a0a0f; --panel: #131318; --border: #22222b; --text: #e5e7eb; --muted: #9199a8; }
   * { box-sizing: border-box; }
-  body { font-family: 'Fira Code', ui-monospace, monospace; background: radial-gradient(circle at top, #0c1c1a, #05070d 65%); color: #e5e7eb; max-width: 680px; margin: 48px auto; padding: 0 20px; line-height: 1.5; }
-  .badge { display: inline-block; font-size: 0.75em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; margin-bottom: 12px; }
-  h1 { color: #f8fafc; font-size: 1.6em; margin: 4px 0 6px; }
-  code { background: #0c1917; padding: 2px 6px; border-radius: 3px; color: var(--accent); }
-  .banner { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #fde68a; padding: 10px 14px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9em; }
-  fieldset { border: 1px solid #1a352f; border-radius: 10px; margin: 18px 0; padding: 14px 16px; background: rgba(255,255,255,0.02); }
-  legend { padding: 0 8px; color: var(--accent); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; }
-  input, textarea { display: block; margin: 8px 0; padding: 10px; width: 100%; background: #081512; border: 1px solid #1a352f; border-radius: 6px; color: #e5e7eb; font-family: inherit; }
-  textarea { height: 50px; }
-  button { padding: 10px 18px; background: var(--accent); color: #032420; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 8px; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  .disclosure { background: #082e29; color: #5eead4; font-size: 0.8em; text-align: center; padding: 6px 12px; }
+  header { display: flex; align-items: center; gap: 10px; padding: 16px 32px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 1.1em; }
+  .brand-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.1em; }
+  main { max-width: 560px; margin: 0 auto; padding: 40px 24px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  h2 { font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 16px; }
+  .story { font-style: italic; color: var(--muted); font-size: 0.85em; margin: -6px 0 16px; }
+  .sub { color: var(--muted); font-size: 0.85em; margin-top: -8px; margin-bottom: 14px; }
+  label { display: block; font-size: 0.8em; color: var(--muted); margin-bottom: 4px; margin-top: 12px; }
+  input, textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: #0d0d12; color: var(--text); font-size: 0.9em; font-family: inherit; }
+  textarea { font-family: ui-monospace, monospace; font-size: 0.85em; height: 50px; }
+  input[readonly] { font-family: ui-monospace, monospace; font-size: 0.8em; color: var(--muted); }
+  button { padding: 9px 16px; border-radius: 8px; border: none; background: var(--accent); color: #032420; font-weight: 600; cursor: pointer; font-size: 0.9em; font-family: inherit; margin-top: 12px; }
   button:hover { filter: brightness(1.1); }
-  pre { background: #081512; border: 1px solid #1a352f; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
-  .hint { color: #9ca3af; font-size: 0.9em; }
-  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
+  .code-box { margin-top: 14px; padding: 14px; background: #081512; border: 1px dashed #1a352f; border-radius: 10px; }
+  .code-box .label { font-size: 0.75em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .code-box .value { font-family: ui-monospace, monospace; font-size: 0.8em; word-break: break-all; color: var(--accent); }
+  .status-msg { margin-top: 14px; padding: 10px 12px; border-radius: 8px; font-size: 0.85em; }
+  .ok { background: #052e2b; color: #6ee7b7; }
+  .err { background: #2e0505; color: #fca5a5; }
+  footer { text-align: center; color: var(--muted); font-size: 0.75em; padding: 24px; }
 </style>
 </head>
 <body>
-  <span class="badge">🧬 OWASP A08</span>
-  <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
-  <h1>Session Restore</h1>
-  <p class="story">A "fast reconnect" feature so users don't have to log in twice. Someone
-     on the team was very proud of the integrity check they added.</p>
-  <p>This app lets clients restore a "signed" session blob for fast reconnects — a base64 JSON
-     payload plus a "checksum" that's meant to prove it came from the server.</p>
+  <div class="disclosure">⚠️ Intentionally vulnerable training service (OWASP A08: Software and Data Integrity Failures) — not for production use</div>
+  <header><span class="brand-icon">🧬</span> WonderCorp Quick Sync</header>
 
-  <fieldset>
-    <legend>1. Encode your session data</legend>
-    <textarea id="data" spellcheck="false">{"role":"user"}</textarea>
-    <button id="encodeBtn" type="button">Base64 encode</button>
-    <input id="encoded" readonly placeholder="base64 appears here">
-    <p class="hint" id="checksumHint">Compute the MD5 of that base64 string yourself (e.g. <code>md5 -s "&lt;value&gt;"</code> on macOS,
-      <code>echo -n "&lt;value&gt;" | md5sum</code> on Linux, or any online MD5 tool) and paste it below.</p>
-  </fieldset>
+  <main>
+    <div class="card">
+      <h2>Export a sync code</h2>
+      <p class="story">A "fast reconnect" feature so users don't have to log in twice on a
+         new device. Someone on the team was very proud of the integrity check they added.</p>
+      <label>Session data (JSON)</label>
+      <textarea id="data" spellcheck="false">{"role":"user"}</textarea>
+      <button id="encodeBtn" type="button">Generate sync code</button>
+      <div class="code-box">
+        <div class="label">Data</div>
+        <div class="value" id="encoded">—</div>
+      </div>
+    </div>
 
-  <fieldset>
-    <legend>2. Submit</legend>
-    <input id="checksum" placeholder="checksum (md5 of the base64 value above)">
-    <button id="submitBtn" type="button">POST /api/session/restore</button>
-  </fieldset>
+    <div class="card">
+      <h2>Import a sync code</h2>
+      <div class="sub">Paste a data value and its checksum to restore a session on this device.</div>
+      <label>Data</label>
+      <input id="importData" placeholder="base64 session data">
+      <label>Checksum</label>
+      <input id="importChecksum" placeholder="checksum for that data">
+      <button id="submitBtn" type="button">Sync this device</button>
+      <div class="status-msg" id="statusMsg" style="display:none;"></div>
+    </div>
+  </main>
 
-  <pre id="result">(nothing yet)</pre>
+  <footer>WonderCorp Quick Sync · OWASP A08 training instance</footer>
 
 <script>
-const result = document.getElementById('result');
-const encodedField = document.getElementById('encoded');
-
 document.getElementById('encodeBtn').addEventListener('click', () => {
   try {
     const parsed = JSON.parse(document.getElementById('data').value);
-    encodedField.value = btoa(JSON.stringify(parsed));
+    const encoded = btoa(JSON.stringify(parsed));
+    document.getElementById('encoded').textContent = encoded;
+    document.getElementById('importData').value = encoded;
   } catch (err) {
-    result.textContent = 'Invalid JSON: ' + err.message;
+    alert('Invalid JSON: ' + err.message);
   }
 });
 
@@ -94,11 +109,15 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
   const res = await fetch('/api/session/restore', {
     method: 'POST',
     body: JSON.stringify({
-      data: encodedField.value,
-      checksum: document.getElementById('checksum').value,
+      data: document.getElementById('importData').value,
+      checksum: document.getElementById('importChecksum').value,
     }),
   });
-  result.textContent = JSON.stringify(await res.json(), null, 2);
+  const data = await res.json();
+  const el = document.getElementById('statusMsg');
+  el.style.display = 'block';
+  el.className = 'status-msg ' + (res.ok ? 'ok' : 'err');
+  el.textContent = res.ok ? (data.message + (data.flag ? ' — ' + data.flag : '')) : data.error;
 });
 </script>
 </body>

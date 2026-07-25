@@ -30,26 +30,65 @@ var internalConfig = map[string]any{
 
 const pageHTML = `<!doctype html>
 <html>
-<head><title>A05: Security Misconfiguration — Left the Debug Door Open</title>
+<head>
+<meta charset="utf-8">
+<title>WonderCorp Ops Dashboard</title>
 <style>
-  :root { --accent: #eab308; --accent-bg: #422006; }
+  :root { --accent: #eab308; --bg: #0a0a0f; --panel: #131318; --border: #22222b; --text: #e5e7eb; --muted: #9199a8; }
   * { box-sizing: border-box; }
-  body { font-family: 'Fira Code', ui-monospace, monospace; background: radial-gradient(circle at top, #1a1608, #05070d 65%); color: #e5e7eb; max-width: 680px; margin: 48px auto; padding: 0 20px; line-height: 1.5; }
-  .badge { display: inline-block; font-size: 0.75em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; margin-bottom: 12px; }
-  h1 { color: #f8fafc; font-size: 1.6em; margin: 4px 0 6px; }
-  code { background: #1a1608; padding: 2px 6px; border-radius: 3px; color: var(--accent); }
-  .banner { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #fde68a; padding: 10px 14px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9em; }
-  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  .disclosure { background: #3a2c05; color: #fde68a; font-size: 0.8em; text-align: center; padding: 6px 12px; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 16px 32px; border-bottom: 1px solid var(--border); }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.1em; }
+  .brand-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.1em; }
+  nav { display: flex; gap: 20px; font-size: 0.85em; color: var(--muted); }
+  nav a { color: var(--muted); text-decoration: none; }
+  nav a:hover { color: var(--text); }
+  main { max-width: 680px; margin: 0 auto; padding: 40px 24px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  h2 { font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 16px; }
+  .status-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9em; }
+  .status-row:last-child { border-bottom: none; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4ade80; margin-right: 8px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .stat { text-align: center; }
+  .stat .n { font-size: 1.4em; font-weight: 700; color: #f8fafc; }
+  .stat .l { font-size: 0.75em; color: var(--muted); margin-top: 2px; }
+  footer { text-align: center; color: var(--muted); font-size: 0.75em; padding: 24px; }
 </style>
 </head>
 <body>
-  <span class="badge">⚙️ OWASP A05</span>
-  <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
-  <h1>Internal App</h1>
-  <p class="story">A small internal tool nobody remembers building, let alone auditing.
-     If it still works, why touch it?</p>
-  <p>This is a small internal tool. Nothing interesting here on the surface — but
-  every build ships with its debug tooling intact, whether or not anyone remembered to disable it.</p>
+  <div class="disclosure">⚠️ Intentionally vulnerable training service (OWASP A05: Security Misconfiguration) — not for production use</div>
+  <header>
+    <div class="brand"><span class="brand-icon">⚙️</span> WonderCorp Ops Dashboard</div>
+    <nav><a href="#">Docs</a><a href="#">Support</a><a href="#">Status History</a></nav>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>Service Status</h2>
+      <div class="status-row"><span><span class="status-dot"></span>API Gateway</span><span>Operational</span></div>
+      <div class="status-row"><span><span class="status-dot"></span>Background Workers</span><span>Operational</span></div>
+      <div class="status-row"><span><span class="status-dot"></span>Notifications</span><span>Operational</span></div>
+    </div>
+
+    <div class="card">
+      <h2>At a Glance</h2>
+      <div class="stat-grid">
+        <div class="stat"><div class="n">342</div><div class="l">Days uptime</div></div>
+        <div class="stat"><div class="n">7</div><div class="l">Active deploys</div></div>
+        <div class="stat"><div class="n">v2.4.1</div><div class="l">Build version</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>About</h2>
+      <p style="color:var(--muted); font-size:0.9em; margin:0;">A small internal tool nobody
+        remembers building, let alone auditing. If it still works, why touch it?</p>
+    </div>
+  </main>
+
+  <footer>WonderCorp Ops · internal tooling · OWASP A05 training instance</footer>
 </body>
 </html>`
 

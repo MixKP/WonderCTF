@@ -25,68 +25,107 @@ const adminPIN = "7361" // 4 digits — 10,000 possibilities, no rate limiting, 
 
 const pageHTML = `<!doctype html>
 <html>
-<head><title>A09: Logging Failures — Nobody's Watching</title>
+<head>
+<meta charset="utf-8">
+<title>WonderCorp Admin Console</title>
 <style>
-  :root { --accent: #94a3b8; --accent-bg: #1e293b; }
+  :root { --accent: #94a3b8; --bg: #0a0a0f; --panel: #131318; --border: #22222b; --text: #e5e7eb; --muted: #9199a8; }
   * { box-sizing: border-box; }
-  body { font-family: 'Fira Code', ui-monospace, monospace; background: radial-gradient(circle at top, #12151b, #05070d 65%); color: #e5e7eb; max-width: 680px; margin: 48px auto; padding: 0 20px; line-height: 1.5; }
-  .badge { display: inline-block; font-size: 0.75em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; margin-bottom: 12px; }
-  h1 { color: #f8fafc; font-size: 1.6em; margin: 4px 0 6px; }
-  code { background: #12151b; padding: 2px 6px; border-radius: 3px; color: var(--accent); }
-  .banner { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #fde68a; padding: 10px 14px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9em; }
-  fieldset { border: 1px solid #253044; border-radius: 10px; margin: 18px 0; padding: 14px 16px; background: rgba(255,255,255,0.02); }
-  legend { padding: 0 8px; color: var(--accent); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; }
-  input { display: block; margin: 8px 0; padding: 10px; width: 100%; background: #0b0e14; border: 1px solid #253044; border-radius: 6px; color: #e5e7eb; font-family: inherit; }
-  button { padding: 10px 18px; background: var(--accent); color: #0b0e14; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 8px; }
-  button:hover { filter: brightness(1.1); }
-  pre { background: #0b0e14; border: 1px solid #253044; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
-  #progress { color: #9ca3af; margin: 8px 0; }
-  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  .disclosure { background: #1e293b; color: #cbd5e1; font-size: 0.8em; text-align: center; padding: 6px 12px; }
+  header { display: flex; align-items: center; gap: 10px; padding: 16px 32px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 1.1em; }
+  .brand-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.1em; }
+  main { max-width: 480px; margin: 0 auto; padding: 40px 24px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); text-align: center; }
+  h1 { font-size: 1.1em; margin: 0 0 4px; color: #f8fafc; }
+  .story { font-style: italic; color: var(--muted); font-size: 0.82em; margin: 8px 0 20px; text-align: left; border-left: 2px solid var(--accent); padding-left: 10px; }
+  .dots { display: flex; justify-content: center; gap: 14px; margin: 20px 0; }
+  .dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border); }
+  .dot.filled { background: var(--accent); border-color: var(--accent); }
+  .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 240px; margin: 0 auto; }
+  .keypad button { padding: 16px 0; font-size: 1.1em; border-radius: 10px; border: 1px solid var(--border); background: #0d0d12; color: var(--text); cursor: pointer; font-family: inherit; }
+  .keypad button:hover { background: #191924; }
+  .keypad button.wide { grid-column: span 1; font-size: 0.85em; color: var(--muted); }
+  h2 { font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 16px; text-align: left; }
+  .btn-secondary { padding: 9px 16px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-size: 0.85em; font-family: inherit; }
+  .btn-secondary:hover { background: #191924; }
+  #progress { color: var(--muted); font-size: 0.8em; margin-top: 10px; text-align: left; }
+  pre { background: #0d0d12; border: 1px solid var(--border); padding: 12px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; font-size: 0.8em; text-align: left; margin-top: 12px; }
+  .status-msg { margin-top: 14px; padding: 10px 12px; border-radius: 8px; font-size: 0.85em; text-align: left; }
+  .ok { background: #052e2b; color: #6ee7b7; }
+  .err { background: #2e0505; color: #fca5a5; }
+  footer { text-align: center; color: var(--muted); font-size: 0.75em; padding: 24px; }
 </style>
 </head>
 <body>
-  <span class="badge">👁️ OWASP A09</span>
-  <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
-  <h1>Admin Console</h1>
-  <p class="story">The admin console got a PIN lock after a security review flagged it as
-     "wide open." The review didn't say what a good PIN policy looks like.</p>
-  <p>Admin logs in with a 4-digit PIN — 10,000 possibilities, no rate limiting, no lockout.</p>
+  <div class="disclosure">⚠️ Intentionally vulnerable training service (OWASP A09: Security Logging and Monitoring Failures) — not for production use</div>
+  <header><span class="brand-icon">👁️</span> WonderCorp Admin Console</header>
 
-  <fieldset>
-    <legend>1. Try a PIN</legend>
-    <form id="loginForm">
-      <input name="pin" placeholder="4-digit PIN" autocomplete="off" maxlength="4">
-      <button type="submit">Log in</button>
-    </form>
-  </fieldset>
+  <main>
+    <div class="card">
+      <h1>Enter PIN</h1>
+      <p class="story">The admin console got a PIN lock after a security review flagged it as
+         "wide open." The review didn't say what a good PIN policy looks like.</p>
+      <div class="dots" id="dots">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <div class="keypad" id="keypad">
+        <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+        <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+        <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+        <button class="wide" data-k="clear">Clear</button><button data-k="0">0</button><button class="wide" data-k="back">⌫</button>
+      </div>
+      <div class="status-msg" id="statusMsg" style="display:none;"></div>
+    </div>
 
-  <fieldset>
-    <legend>2. Or just brute-force all 10,000</legend>
-    <button id="bruteBtn" type="button">Try every PIN</button>
-    <div id="progress"></div>
-  </fieldset>
+    <div class="card" style="text-align:left;">
+      <h2>Automated attempt</h2>
+      <button class="btn-secondary" id="bruteBtn" type="button">Try every PIN (0000–9999)</button>
+      <div id="progress"></div>
+    </div>
 
-  <fieldset>
-    <legend>3. Check what got logged</legend>
-    <button id="auditBtn" type="button">GET /api/audit-log</button>
-  </fieldset>
+    <div class="card" style="text-align:left;">
+      <h2>Security activity</h2>
+      <button class="btn-secondary" id="auditBtn" type="button">View audit log</button>
+      <pre id="result" style="display:none;"></pre>
+    </div>
+  </main>
 
-  <pre id="result">(nothing yet)</pre>
+  <footer>WonderCorp Admin Console · OWASP A09 training instance</footer>
 
 <script>
-const result = document.getElementById('result');
+let pin = '';
+const dots = document.querySelectorAll('.dot');
+const statusMsg = document.getElementById('statusMsg');
 const progress = document.getElementById('progress');
+const result = document.getElementById('result');
 
-async function tryPin(pin) {
-  const res = await fetch('/login', { method: 'POST', body: JSON.stringify({ pin }) });
+function renderDots() {
+  dots.forEach((d, i) => d.classList.toggle('filled', i < pin.length));
+}
+
+async function tryPin(p) {
+  const res = await fetch('/login', { method: 'POST', body: JSON.stringify({ pin: p }) });
   return { ok: res.ok, data: await res.json() };
 }
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
-  const { data } = await tryPin(fd.get('pin'));
-  result.textContent = JSON.stringify(data, null, 2);
+async function submitPin() {
+  const { ok, data } = await tryPin(pin);
+  statusMsg.style.display = 'block';
+  statusMsg.className = 'status-msg ' + (ok ? 'ok' : 'err');
+  statusMsg.textContent = ok ? (data.message + (data.flag ? ' — ' + data.flag : '')) : data.error;
+  pin = '';
+  renderDots();
+}
+
+document.getElementById('keypad').addEventListener('click', (e) => {
+  const k = e.target.dataset.k;
+  if (!k) return;
+  if (k === 'clear') { pin = ''; }
+  else if (k === 'back') { pin = pin.slice(0, -1); }
+  else if (pin.length < 4) { pin += k; }
+  renderDots();
+  if (pin.length === 4) submitPin();
 });
 
 document.getElementById('bruteBtn').addEventListener('click', async () => {
@@ -98,10 +137,10 @@ document.getElementById('bruteBtn').addEventListener('click', async () => {
 
   async function worker() {
     while (next < 10000 && !found) {
-      const pin = String(next++).padStart(4, '0');
-      progress.textContent = 'trying ' + pin + ' ... (' + next + '/10000)';
-      const { ok, data } = await tryPin(pin);
-      if (ok) { found = { pin, data }; return; }
+      const p = String(next++).padStart(4, '0');
+      progress.textContent = 'trying ' + p + ' ... (' + next + '/10000)';
+      const { ok, data } = await tryPin(p);
+      if (ok) { found = { pin: p, data }; return; }
     }
   }
 
@@ -109,7 +148,9 @@ document.getElementById('bruteBtn').addEventListener('click', async () => {
   btn.disabled = false;
   if (found) {
     progress.textContent = 'found it: ' + found.pin;
-    result.textContent = JSON.stringify(found.data, null, 2);
+    statusMsg.style.display = 'block';
+    statusMsg.className = 'status-msg ok';
+    statusMsg.textContent = found.data.message + ' — ' + found.data.flag;
   } else {
     progress.textContent = 'exhausted all 10,000 — something is wrong.';
   }
@@ -117,6 +158,7 @@ document.getElementById('bruteBtn').addEventListener('click', async () => {
 
 document.getElementById('auditBtn').addEventListener('click', async () => {
   const res = await fetch('/api/audit-log');
+  result.style.display = 'block';
   result.textContent = JSON.stringify(await res.json(), null, 2);
 });
 </script>

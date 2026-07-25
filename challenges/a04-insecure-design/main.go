@@ -35,82 +35,122 @@ var (
 
 const pageHTML = `<!doctype html>
 <html>
-<head><title>A04: Insecure Design — Reset, Predictably</title>
+<head>
+<meta charset="utf-8">
+<title>WonderCorp Account Recovery</title>
 <style>
-  :root { --accent: #3b82f6; --accent-bg: #1e3a5f; }
+  :root { --accent: #3b82f6; --bg: #0a0a0f; --panel: #131318; --border: #22222b; --text: #e5e7eb; --muted: #9199a8; }
   * { box-sizing: border-box; }
-  body { font-family: 'Fira Code', ui-monospace, monospace; background: radial-gradient(circle at top, #0f1729, #05070d 65%); color: #e5e7eb; max-width: 680px; margin: 48px auto; padding: 0 20px; line-height: 1.5; }
-  .badge { display: inline-block; font-size: 0.75em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; margin-bottom: 12px; }
-  h1 { color: #f8fafc; font-size: 1.6em; margin: 4px 0 6px; }
-  code { background: #0e1524; padding: 2px 6px; border-radius: 3px; color: var(--accent); }
-  .banner { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #fde68a; padding: 10px 14px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9em; }
-  fieldset { border: 1px solid #1c2a42; border-radius: 10px; margin: 18px 0; padding: 14px 16px; background: rgba(255,255,255,0.02); }
-  legend { padding: 0 8px; color: var(--accent); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; }
-  input { display: block; margin: 8px 0; padding: 10px; width: 100%; background: #0a0f1c; border: 1px solid #1c2a42; border-radius: 6px; color: #e5e7eb; font-family: inherit; }
-  button { padding: 10px 18px; background: var(--accent); color: #041228; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 8px; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  .disclosure { background: #142748; color: #93c5fd; font-size: 0.8em; text-align: center; padding: 6px 12px; }
+  header { display: flex; align-items: center; gap: 10px; padding: 16px 32px; border-bottom: 1px solid var(--border); font-weight: 700; font-size: 1.1em; }
+  .brand-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.1em; }
+  main { max-width: 420px; margin: 0 auto; padding: 60px 24px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+  h1 { font-size: 1.2em; margin: 0 0 4px; color: #f8fafc; }
+  .sub { color: var(--muted); font-size: 0.85em; margin-bottom: 16px; }
+  .story { font-style: italic; color: var(--muted); font-size: 0.85em; margin-bottom: 20px; border-left: 2px solid var(--accent); padding-left: 10px; }
+  label { display: block; font-size: 0.8em; color: var(--muted); margin-bottom: 4px; margin-top: 14px; }
+  input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); background: #0d0d12; color: var(--text); font-size: 0.95em; font-family: inherit; }
+  input#code { text-align: center; letter-spacing: 0.15em; font-family: ui-monospace, monospace; font-size: 1.1em; }
+  button { width: 100%; margin-top: 20px; padding: 10px 12px; border-radius: 8px; border: none; background: var(--accent); color: #041228; font-weight: 600; cursor: pointer; font-size: 0.95em; font-family: inherit; }
   button:hover { filter: brightness(1.1); }
-  pre { background: #0a0f1c; border: 1px solid #1c2a42; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
-  #clock { color: #9ca3af; font-size: 0.9em; }
-  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
+  .sandbox-hint { margin-top: 16px; padding: 10px 12px; background: #0d0d12; border: 1px dashed var(--border); border-radius: 8px; font-size: 0.78em; color: var(--muted); }
+  .sandbox-hint strong { color: var(--text); font-family: ui-monospace, monospace; }
+  .step2 { display: none; }
+  .status-msg { margin-top: 16px; padding: 10px 12px; border-radius: 8px; font-size: 0.85em; }
+  .ok { background: #052e2b; color: #6ee7b7; }
+  .err { background: #2e0505; color: #fca5a5; }
+  footer { text-align: center; color: var(--muted); font-size: 0.75em; padding: 24px; }
 </style>
 </head>
 <body>
-  <span class="badge">📐 OWASP A04</span>
-  <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
-  <h1>Password Reset</h1>
-  <p class="story">Support kept getting tickets for "I forgot my password," so someone built
-     a self-serve reset flow. Ship first, ask questions later.</p>
-  <p>Take over the <code>admin</code> account without ever knowing the password.</p>
-  <p id="clock">current time (unix): —</p>
+  <div class="disclosure">⚠️ Intentionally vulnerable training service (OWASP A04: Insecure Design) — not for production use</div>
+  <header><span class="brand-icon">📐</span> WonderCorp Account Recovery</header>
 
-  <fieldset>
-    <legend>1. Request a reset</legend>
-    <form id="forgotForm">
-      <input name="username" placeholder="username" autocomplete="off" value="admin">
-      <button type="submit">Request reset</button>
-    </form>
-  </fieldset>
+  <main>
+    <div class="card">
+      <div id="step1">
+        <h1>Forgot your password?</h1>
+        <div class="sub">Enter your username and we'll send you a reset code.</div>
+        <p class="story">Support kept getting tickets for "I forgot my password," so someone
+           built a self-serve flow. Ship first, ask questions later.</p>
+        <form id="forgotForm">
+          <label>Username</label>
+          <input name="username" autocomplete="off" value="admin">
+          <button type="submit">Send reset code</button>
+        </form>
+      </div>
 
-  <fieldset>
-    <legend>2. Complete the reset</legend>
-    <form id="resetForm">
-      <input name="username" placeholder="username" autocomplete="off" value="admin">
-      <input name="token" placeholder="token" autocomplete="off">
-      <input name="newPassword" placeholder="new password" autocomplete="off" value="hacked123">
-      <button type="submit">Reset password</button>
-    </form>
-  </fieldset>
+      <div id="step2" class="step2">
+        <h1>Enter your code</h1>
+        <div class="sub" id="sentTo">We sent a reset code — check your inbox.</div>
+        <form id="resetForm">
+          <label>Reset code</label>
+          <input id="code" name="token" autocomplete="off" placeholder="000000">
+          <label>New password</label>
+          <input name="newPassword" autocomplete="off" value="hacked123">
+          <button type="submit">Reset password</button>
+        </form>
+        <div class="sandbox-hint">Sandbox mode — real deployments email this code. For testing,
+          here's the recovery server's clock: <strong id="clock">—</strong></div>
+      </div>
 
-  <pre id="result">(nothing yet)</pre>
+      <div class="status-msg" id="statusMsg" style="display:none;"></div>
+    </div>
+  </main>
+
+  <footer>WonderCorp Account Recovery · OWASP A04 training instance</footer>
 
 <script>
-const clock = document.getElementById('clock');
-setInterval(() => { clock.textContent = 'current time (unix): ' + Math.floor(Date.now() / 1000); }, 250);
+let clockTimer = null;
 
-const result = document.getElementById('result');
+function showStep2(username) {
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'block';
+  document.getElementById('sentTo').textContent = 'We sent a reset code for "' + username + '" — check your inbox.';
+  const clock = document.getElementById('clock');
+  clockTimer = setInterval(() => { clock.textContent = Math.floor(Date.now() / 1000); }, 250);
+}
+
+function showStatus(ok, text) {
+  const el = document.getElementById('statusMsg');
+  el.style.display = 'block';
+  el.className = 'status-msg ' + (ok ? 'ok' : 'err');
+  el.textContent = text;
+}
 
 document.getElementById('forgotForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const fd = new FormData(e.target);
+  const username = fd.get('username');
   const res = await fetch('/api/forgot-password', {
     method: 'POST',
-    body: JSON.stringify({ username: fd.get('username') }),
+    body: JSON.stringify({ username }),
   });
-  result.textContent = JSON.stringify(await res.json(), null, 2);
+  const data = await res.json();
+  if (res.ok) {
+    showStep2(username);
+    document.getElementById('resetForm').dataset.username = username;
+  } else {
+    showStatus(false, data.error);
+  }
 });
 
 document.getElementById('resetForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const fd = new FormData(e.target);
+  const username = e.target.dataset.username;
   const res = await fetch('/api/reset-password', {
     method: 'POST',
     body: JSON.stringify({
-      username: fd.get('username'),
+      username,
       token: fd.get('token'),
       newPassword: fd.get('newPassword'),
     }),
   });
-  result.textContent = JSON.stringify(await res.json(), null, 2);
+  const data = await res.json();
+  showStatus(res.ok, res.ok ? (data.status + (data.flag ? ' — ' + data.flag : '')) : data.error);
 });
 </script>
 </body>
