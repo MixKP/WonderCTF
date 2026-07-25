@@ -17,7 +17,13 @@ const PORT = process.env.PORT || 8080
 const app = express()
 app.use(express.json())
 
-const defaultProfile = { theme: 'dark', notifications: true, isAdmin: false }
+// Deliberately does NOT include isAdmin as an own property: if it did, that
+// own property would always shadow whatever ends up on Object.prototype when
+// the merged object is read back, making the /api/profile response an
+// actively misleading signal for whether prototype pollution worked (a
+// direct, non-exploit {"isAdmin":true} would show success; the real
+// __proto__ exploit would show failure). /api/flag is the only real signal.
+const defaultProfile = { theme: 'dark', notifications: true }
 
 const PAGE_HTML = `<!doctype html>
 <html>
@@ -66,7 +72,9 @@ const PAGE_HTML = `<!doctype html>
     <div class="card">
       <h2>Advanced — Developer Mode</h2>
       <p style="color:var(--muted); font-size:0.85em; margin-top:-8px;">Import a raw settings
-        object. Whatever you send here gets merged into your profile server-side.</p>
+        object. Whatever you send here gets merged into your profile server-side. This response
+        only ever reflects <em>your own</em> profile — it can't tell you whether anything changed
+        elsewhere. Check Admin Tools separately to find out.</p>
       <form id="profileForm">
         <textarea name="body" spellcheck="false">{"theme":"light"}</textarea>
         <button type="submit">Apply settings</button>
