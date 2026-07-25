@@ -8,6 +8,10 @@ An order-lookup service. Log in as any demo user, then fetch orders by id.
 
 Demo credentials: `alice / alice123`, `bob / bob123`.
 
+**Play it in the browser** — open http://localhost:9001, log in with the form, then
+try different order ids in the "view an order" box. The `curl` below is just
+what the page does under the hood.
+
 ## The bug
 
 `getOrderHandler` in `main.go` checks that the caller has a valid session

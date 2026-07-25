@@ -7,6 +7,10 @@
 A token-based dashboard. Demo login `alice / alice123` gets you a token —
 but `alice` isn't an admin, and there's no admin account to log in as.
 
+**Play it in the browser** — open http://localhost:9007. Edit the header/payload
+JSON (try `"alg":"none"` and `"isAdmin":true`), click "Build token", then "GET
+/api/flag" — the page base64url-encodes it for you.
+
 ## The bug
 
 `verifyToken` trusts the `alg` field from the attacker-supplied token header

@@ -7,6 +7,9 @@
 A profile service. `POST /api/profile` merges your JSON body into a default
 profile object and echoes back the result.
 
+**Play it in the browser** — open http://localhost:9006, edit the JSON in the
+textarea, click "POST /api/profile", then "GET /api/flag".
+
 ## The bug
 
 `package.json` pins `lodash` to `4.17.4`, which is vulnerable to prototype

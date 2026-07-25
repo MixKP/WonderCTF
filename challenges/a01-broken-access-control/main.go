@@ -9,7 +9,6 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -58,19 +57,74 @@ const pageHTML = `<!doctype html>
   h1 { color: #22d3ee; }
   code { background: #131a2b; padding: 2px 6px; border-radius: 3px; }
   .banner { background: #2e2405; color: #fde68a; padding: 8px 12px; margin-bottom: 20px; border-radius: 4px; }
+  fieldset { border: 1px solid #1f2a44; border-radius: 6px; margin: 16px 0; }
+  legend { padding: 0 6px; color: #9ca3af; }
+  input { display: block; margin: 8px 0; padding: 8px; width: 100%; box-sizing: border-box; background: #131a2b; border: 1px solid #1f2a44; color: #e5e7eb; }
+  button { padding: 8px 16px; background: #0e7490; color: white; border: none; cursor: pointer; }
+  #status { margin: 8px 0; color: #9ca3af; }
+  pre { background: #131a2b; padding: 12px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; }
 </style>
 </head>
 <body>
   <div class="banner">⚠️ Intentionally vulnerable training service — OWASP A01: Broken Access Control</div>
   <h1>Order Lookup</h1>
-  <p>Demo accounts: <code>alice / alice123</code>, <code>bob / bob123</code>.</p>
-  <p><code>POST /login</code> with JSON <code>{"username","password"}</code> to get a token.</p>
-  <p><code>GET /api/orders/{id}</code> with header <code>Authorization: Bearer &lt;token&gt;</code> to view an order.</p>
-  <p>Orders are numbered 1001-1003. You own one of them.</p>
+  <p>Demo accounts: <code>alice / alice123</code>, <code>bob / bob123</code>. Orders are numbered 1001-1003 — you own exactly one of them.</p>
+
+  <fieldset>
+    <legend>1. Log in</legend>
+    <form id="loginForm">
+      <input name="username" placeholder="username" autocomplete="off" value="alice">
+      <input name="password" placeholder="password" autocomplete="off" value="alice123">
+      <button type="submit">Log in</button>
+    </form>
+    <div id="status">Not logged in.</div>
+  </fieldset>
+
+  <fieldset>
+    <legend>2. View an order</legend>
+    <form id="orderForm">
+      <input name="id" placeholder="order id" autocomplete="off" value="1001">
+      <button type="submit">View order</button>
+    </form>
+  </fieldset>
+
+  <pre id="result">(nothing yet)</pre>
+
+<script>
+let token = null;
+const status = document.getElementById('status');
+const result = document.getElementById('result');
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/login', {
+    method: 'POST',
+    body: JSON.stringify({ username: fd.get('username'), password: fd.get('password') }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    token = data.token;
+    status.textContent = 'Logged in as user #' + data.userId + '.';
+  } else {
+    token = null;
+    status.textContent = 'Login failed: ' + data.error;
+  }
+});
+
+document.getElementById('orderForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!token) { result.textContent = 'Log in first.'; return; }
+  const fd = new FormData(e.target);
+  const res = await fetch('/api/orders/' + encodeURIComponent(fd.get('id')), {
+    headers: { Authorization: 'Bearer ' + token },
+  });
+  const data = await res.json();
+  result.textContent = JSON.stringify(data, null, 2);
+});
+</script>
 </body>
 </html>`
-
-var tmpl = template.Must(template.New("page").Parse(pageHTML))
 
 func generateToken() string {
 	b := make([]byte, 16)
@@ -82,7 +136,7 @@ func generateToken() string {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tmpl.Execute(w, nil)
+	w.Write([]byte(pageHTML))
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {

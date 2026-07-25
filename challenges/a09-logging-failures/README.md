@@ -6,6 +6,9 @@
 
 An admin console gated by a 4-digit PIN.
 
+**Play it in the browser** — open http://localhost:9009 and click "Try every
+PIN". Watch the audit-log button before and after: it never changes.
+
 ## The bug
 
 ```go

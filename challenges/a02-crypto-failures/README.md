@@ -7,6 +7,10 @@
 A legacy account system. `GET /api/users/{username}/hash` is an old debug
 endpoint that was never removed.
 
+**Play it in the browser** — open http://localhost:9002, click "Get hash" to leak
+`admin`'s MD5, crack it externally (CrackStation/hashcat/john), then paste the
+result into the login form.
+
 ## The bug
 
 Passwords are hashed with unsalted MD5 — fast to compute (bad for password

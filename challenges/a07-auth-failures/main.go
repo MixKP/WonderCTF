@@ -15,7 +15,6 @@ import (
 	"crypto/subtle"
 	"encoding/base64"
 	"encoding/json"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -106,22 +105,82 @@ const pageHTML = `<!doctype html>
   h1 { color: #22d3ee; }
   code { background: #131a2b; padding: 2px 6px; border-radius: 3px; }
   .banner { background: #2e2405; color: #fde68a; padding: 8px 12px; margin-bottom: 20px; border-radius: 4px; }
+  fieldset { border: 1px solid #1f2a44; border-radius: 6px; margin: 16px 0; }
+  legend { padding: 0 6px; color: #9ca3af; }
+  input, textarea { display: block; margin: 8px 0; padding: 8px; width: 100%; box-sizing: border-box; background: #131a2b; border: 1px solid #1f2a44; color: #e5e7eb; font-family: monospace; }
+  textarea { height: 50px; }
+  button { padding: 8px 16px; background: #0e7490; color: white; border: none; cursor: pointer; margin-right: 8px; }
+  pre { background: #131a2b; padding: 12px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
 </style>
 </head>
 <body>
   <div class="banner">⚠️ Intentionally vulnerable training service — OWASP A07: Auth Failures</div>
   <h1>Token-Based Dashboard</h1>
-  <p>Demo login: <code>alice / alice123</code> — but alice isn't an admin.</p>
-  <p><code>POST /login</code> with JSON <code>{"username","password"}</code> to get a token.</p>
-  <p><code>GET /api/flag</code> with header <code>Authorization: Bearer &lt;token&gt;</code>.</p>
+  <p>Demo login: <code>alice / alice123</code> — but alice isn't an admin. <code>GET /api/flag</code> is admin-only.</p>
+
+  <fieldset>
+    <legend>1. Log in as alice (get a legitimate token)</legend>
+    <button id="loginBtn" type="button">Log in</button>
+  </fieldset>
+
+  <fieldset>
+    <legend>2. Build a token by hand</legend>
+    <p>Edit the header and payload JSON below, build the token, then send it.</p>
+    <textarea id="header" spellcheck="false">{"alg":"HS256","typ":"JWT"}</textarea>
+    <textarea id="payload" spellcheck="false">{"username":"alice","isAdmin":false}</textarea>
+    <button id="buildBtn" type="button">Build token</button>
+    <input id="token" placeholder="token appears here after building — or paste your own">
+  </fieldset>
+
+  <fieldset>
+    <legend>3. Try it against /api/flag</legend>
+    <button id="sendBtn" type="button">GET /api/flag</button>
+  </fieldset>
+
+  <pre id="result">(nothing yet)</pre>
+
+<script>
+const result = document.getElementById('result');
+const tokenField = document.getElementById('token');
+
+function b64url(obj) {
+  const json = JSON.stringify(obj);
+  return btoa(json).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const res = await fetch('/login', {
+    method: 'POST',
+    body: JSON.stringify({ username: 'alice', password: 'alice123' }),
+  });
+  const data = await res.json();
+  if (res.ok) tokenField.value = data.token;
+  result.textContent = JSON.stringify(data, null, 2);
+});
+
+document.getElementById('buildBtn').addEventListener('click', () => {
+  try {
+    const header = JSON.parse(document.getElementById('header').value);
+    const payload = JSON.parse(document.getElementById('payload').value);
+    tokenField.value = b64url(header) + '.' + b64url(payload) + '.';
+  } catch (err) {
+    result.textContent = 'Invalid JSON: ' + err.message;
+  }
+});
+
+document.getElementById('sendBtn').addEventListener('click', async () => {
+  const res = await fetch('/api/flag', {
+    headers: { Authorization: 'Bearer ' + tokenField.value },
+  });
+  result.textContent = JSON.stringify(await res.json(), null, 2);
+});
+</script>
 </body>
 </html>`
 
-var tmpl = template.Must(template.New("page").Parse(pageHTML))
-
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tmpl.Execute(w, nil)
+	w.Write([]byte(pageHTML))
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {

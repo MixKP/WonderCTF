@@ -7,6 +7,10 @@
 A password reset flow: `POST /api/forgot-password` requests a reset,
 `POST /api/reset-password` completes it with a token.
 
+**Play it in the browser** — open http://localhost:9004. The page shows a live
+clock in Unix time next to the two forms, so you can read off "now" without a
+terminal.
+
 ## The bug
 
 There's no injection, no missing auth check — the *design* itself is flawed:

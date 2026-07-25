@@ -27,14 +27,60 @@ const PAGE_HTML = `<!doctype html>
   h1 { color: #22d3ee; }
   code { background: #131a2b; padding: 2px 6px; border-radius: 3px; }
   .banner { background: #2e2405; color: #fde68a; padding: 8px 12px; margin-bottom: 20px; border-radius: 4px; }
+  fieldset { border: 1px solid #1f2a44; border-radius: 6px; margin: 16px 0; }
+  legend { padding: 0 6px; color: #9ca3af; }
+  textarea { display: block; margin: 8px 0; padding: 8px; width: 100%; box-sizing: border-box; background: #131a2b; border: 1px solid #1f2a44; color: #e5e7eb; font-family: monospace; height: 80px; }
+  button { padding: 8px 16px; background: #0e7490; color: white; border: none; cursor: pointer; margin-right: 8px; }
+  pre { background: #131a2b; padding: 12px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; }
 </style>
 </head>
 <body>
   <div class="banner">⚠️ Intentionally vulnerable training service — OWASP A06: Vulnerable and Outdated Components</div>
   <h1>Profile Service</h1>
-  <p>This service ships an outdated, known-vulnerable dependency.
-     <code>POST /api/profile</code> merges your JSON body into a default profile.</p>
-  <p><code>GET /api/flag</code> is admin-only.</p>
+  <p>This service ships an outdated, known-vulnerable dependency (see README for the CVE).
+     Whatever JSON object you send here gets merged into a default profile server-side.</p>
+
+  <fieldset>
+    <legend>1. Update profile</legend>
+    <form id="profileForm">
+      <textarea name="body" spellcheck="false">{"theme":"light"}</textarea>
+      <button type="submit">POST /api/profile</button>
+    </form>
+  </fieldset>
+
+  <fieldset>
+    <legend>2. Check flag (admin only)</legend>
+    <button id="checkFlag" type="button">GET /api/flag</button>
+  </fieldset>
+
+  <pre id="result">(nothing yet)</pre>
+
+<script>
+const result = document.getElementById('result');
+
+document.getElementById('profileForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  let parsed;
+  try {
+    parsed = JSON.parse(fd.get('body'));
+  } catch (err) {
+    result.textContent = 'Invalid JSON: ' + err.message;
+    return;
+  }
+  const res = await fetch('/api/profile', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(parsed),
+  });
+  result.textContent = JSON.stringify(await res.json(), null, 2);
+});
+
+document.getElementById('checkFlag').addEventListener('click', async () => {
+  const res = await fetch('/api/flag');
+  result.textContent = JSON.stringify(await res.json(), null, 2);
+});
+</script>
 </body>
 </html>`
 

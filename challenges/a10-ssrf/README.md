@@ -14,6 +14,9 @@ reach it directly. This stands in for a cloud metadata endpoint (like the
 classic `169.254.169.254`) that's reachable only from inside a host, not from
 the network.
 
+**Play it in the browser** — open http://localhost:9010 and paste
+`http://127.0.0.1:8081/internal/secret` into the form.
+
 ## The bug
 
 ```go

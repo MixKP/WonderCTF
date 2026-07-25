@@ -11,7 +11,6 @@ package main
 
 import (
 	"encoding/json"
-	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -35,17 +34,20 @@ const pageHTML = `<!doctype html>
   <div class="banner">⚠️ Intentionally vulnerable training service — OWASP A10: Server-Side Request Forgery</div>
   <h1>URL Preview Tool</h1>
   <p>Paste a URL and this service will fetch it for you, server-side.</p>
-  <p><code>GET /fetch?url=https://example.com</code></p>
   <p>This container also runs something on <code>127.0.0.1</code> that's never
   published outside the container — but this service runs inside it too.</p>
+
+  <form action="/fetch" method="GET" style="margin: 16px 0;">
+    <input name="url" placeholder="https://example.com" autocomplete="off"
+      style="display:block; margin:8px 0; padding:8px; width:100%; box-sizing:border-box; background:#131a2b; border:1px solid #1f2a44; color:#e5e7eb;">
+    <button type="submit" style="padding:8px 16px; background:#0e7490; color:white; border:none; cursor:pointer;">Fetch</button>
+  </form>
 </body>
 </html>`
 
-var tmpl = template.Must(template.New("page").Parse(pageHTML))
-
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tmpl.Execute(w, nil)
+	w.Write([]byte(pageHTML))
 }
 
 // BUG: fetches whatever URL the caller supplies with no allowlist and no

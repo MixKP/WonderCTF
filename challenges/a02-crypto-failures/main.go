@@ -10,7 +10,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -50,22 +49,67 @@ const pageHTML = `<!doctype html>
   h1 { color: #22d3ee; }
   code { background: #131a2b; padding: 2px 6px; border-radius: 3px; }
   .banner { background: #2e2405; color: #fde68a; padding: 8px 12px; margin-bottom: 20px; border-radius: 4px; }
+  fieldset { border: 1px solid #1f2a44; border-radius: 6px; margin: 16px 0; }
+  legend { padding: 0 6px; color: #9ca3af; }
+  input { display: block; margin: 8px 0; padding: 8px; width: 100%; box-sizing: border-box; background: #131a2b; border: 1px solid #1f2a44; color: #e5e7eb; }
+  button { padding: 8px 16px; background: #0e7490; color: white; border: none; cursor: pointer; }
+  pre { background: #131a2b; padding: 12px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; }
 </style>
 </head>
 <body>
   <div class="banner">⚠️ Intentionally vulnerable training service — OWASP A02: Cryptographic Failures</div>
   <h1>Legacy Account System</h1>
-  <p>Passwords here are hashed with unsalted MD5. A legacy debug endpoint exposes those hashes.</p>
-  <p><code>GET /api/users/{username}/hash</code> — leaks the stored MD5 hash.</p>
-  <p><code>POST /login</code> with JSON <code>{"username","password"}</code>.</p>
+  <p>A legacy debug endpoint leaks password hashes. They're unsalted MD5 — crack one with
+     <a href="https://crackstation.net/" target="_blank" rel="noopener">CrackStation</a>, <code>hashcat</code>, or <code>john</code>,
+     then log in with the recovered password.</p>
+
+  <fieldset>
+    <legend>1. Leak a hash</legend>
+    <form id="hashForm">
+      <input name="username" placeholder="username" autocomplete="off" value="admin">
+      <button type="submit">Get hash</button>
+    </form>
+  </fieldset>
+
+  <fieldset>
+    <legend>2. Log in with the cracked password</legend>
+    <form id="loginForm">
+      <input name="username" placeholder="username" autocomplete="off" value="admin">
+      <input name="password" placeholder="password" autocomplete="off">
+      <button type="submit">Log in</button>
+    </form>
+  </fieldset>
+
+  <pre id="result">(nothing yet)</pre>
+
+<script>
+const result = document.getElementById('result');
+
+document.getElementById('hashForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/api/users/' + encodeURIComponent(fd.get('username')) + '/hash');
+  const data = await res.json();
+  result.textContent = JSON.stringify(data, null, 2);
+});
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/login', {
+    method: 'POST',
+    body: JSON.stringify({ username: fd.get('username'), password: fd.get('password') }),
+  });
+  const data = await res.json();
+  result.textContent = JSON.stringify(data, null, 2);
+});
+</script>
 </body>
 </html>`
 
-var tmpl = template.Must(template.New("page").Parse(pageHTML))
-
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tmpl.Execute(w, nil)
+	w.Write([]byte(pageHTML))
 }
 
 func hashLeakHandler(w http.ResponseWriter, r *http.Request) {

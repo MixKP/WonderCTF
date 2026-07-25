@@ -11,7 +11,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -42,22 +41,76 @@ const pageHTML = `<!doctype html>
   h1 { color: #22d3ee; }
   code { background: #131a2b; padding: 2px 6px; border-radius: 3px; }
   .banner { background: #2e2405; color: #fde68a; padding: 8px 12px; margin-bottom: 20px; border-radius: 4px; }
+  fieldset { border: 1px solid #1f2a44; border-radius: 6px; margin: 16px 0; }
+  legend { padding: 0 6px; color: #9ca3af; }
+  input { display: block; margin: 8px 0; padding: 8px; width: 100%; box-sizing: border-box; background: #131a2b; border: 1px solid #1f2a44; color: #e5e7eb; }
+  button { padding: 8px 16px; background: #0e7490; color: white; border: none; cursor: pointer; }
+  pre { background: #131a2b; padding: 12px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; }
+  #clock { color: #9ca3af; font-size: 0.9em; }
 </style>
 </head>
 <body>
   <div class="banner">⚠️ Intentionally vulnerable training service — OWASP A04: Insecure Design</div>
   <h1>Password Reset</h1>
-  <p><code>POST /api/forgot-password</code> with JSON <code>{"username"}</code> to request a reset.</p>
-  <p><code>POST /api/reset-password</code> with JSON <code>{"username","token","newPassword"}</code> to complete it.</p>
-  <p>Take over the <code>admin</code> account.</p>
+  <p>Take over the <code>admin</code> account without ever knowing the password.</p>
+  <p id="clock">current time (unix): —</p>
+
+  <fieldset>
+    <legend>1. Request a reset</legend>
+    <form id="forgotForm">
+      <input name="username" placeholder="username" autocomplete="off" value="admin">
+      <button type="submit">Request reset</button>
+    </form>
+  </fieldset>
+
+  <fieldset>
+    <legend>2. Complete the reset</legend>
+    <form id="resetForm">
+      <input name="username" placeholder="username" autocomplete="off" value="admin">
+      <input name="token" placeholder="token" autocomplete="off">
+      <input name="newPassword" placeholder="new password" autocomplete="off" value="hacked123">
+      <button type="submit">Reset password</button>
+    </form>
+  </fieldset>
+
+  <pre id="result">(nothing yet)</pre>
+
+<script>
+const clock = document.getElementById('clock');
+setInterval(() => { clock.textContent = 'current time (unix): ' + Math.floor(Date.now() / 1000); }, 250);
+
+const result = document.getElementById('result');
+
+document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/api/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ username: fd.get('username') }),
+  });
+  result.textContent = JSON.stringify(await res.json(), null, 2);
+});
+
+document.getElementById('resetForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/api/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({
+      username: fd.get('username'),
+      token: fd.get('token'),
+      newPassword: fd.get('newPassword'),
+    }),
+  });
+  result.textContent = JSON.stringify(await res.json(), null, 2);
+});
+</script>
 </body>
 </html>`
 
-var tmpl = template.Must(template.New("page").Parse(pageHTML))
-
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tmpl.Execute(w, nil)
+	w.Write([]byte(pageHTML))
 }
 
 // BUG: the "reset token" is just the current Unix timestamp as a string.

@@ -8,6 +8,11 @@ A "session restore" feature: send back a base64 blob and a checksum, and the
 app restores your session from it — supposedly proving the blob came from
 the server.
 
+**Play it in the browser** — open http://localhost:9008. Type `{"role":"admin"}`,
+click "Base64 encode" to get the exact string to hash, compute its MD5
+yourself (any online tool, or `md5`/`md5sum` in a terminal), paste it into
+the checksum field, and submit.
+
 ## The bug
 
 ```go
