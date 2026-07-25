@@ -170,6 +170,8 @@ const pageHTML = `<!doctype html>
 
       <div class="card">
         <h2>Token Inspector <span style="font-weight:400; text-transform:none; letter-spacing:0;">(dev tool)</span></h2>
+        <p class="sub" style="margin-top:-8px;">"Rebuild token" re-encodes whatever's in both
+           fields below with no signature — edit the header too, not just the payload.</p>
         <label>Header</label>
         <textarea id="header" spellcheck="false">{"alg":"HS256","typ":"JWT"}</textarea>
         <label>Payload</label>
