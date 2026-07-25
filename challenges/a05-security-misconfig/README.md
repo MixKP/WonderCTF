@@ -4,7 +4,15 @@
 
 ## Scenario
 
-A small internal-looking app. Nothing obviously exploitable on the homepage.
+A small internal-looking app. Nothing obviously exploitable on the homepage —
+by design, this challenge doesn't tell you where to look. Two realistic,
+tool-free ways to find it, no wordlist or scanner needed:
+
+- **View page source.** There's a leftover developer comment mentioning
+  exactly what shouldn't have shipped.
+- **Check `/robots.txt`.** It disallows `/debug/` — meant to keep search
+  engines from indexing it, which incidentally tells anyone who looks that
+  something lives there.
 
 ## The bug
 

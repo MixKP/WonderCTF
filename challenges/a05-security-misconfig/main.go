@@ -8,7 +8,6 @@ package main
 
 import (
 	"encoding/json"
-	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -89,14 +88,16 @@ const pageHTML = `<!doctype html>
   </main>
 
   <footer>WonderCorp Ops · internal tooling · OWASP A05 training instance</footer>
+
+  <!-- TODO(dave): remove /debug/config before this goes anywhere near the internet. -tracked in OPS-482 -->
 </body>
 </html>`
 
-var tmpl = template.Must(template.New("page").Parse(pageHTML))
+const robotsTxt = "User-agent: *\nDisallow: /debug/\n"
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	tmpl.Execute(w, nil)
+	w.Write([]byte(pageHTML))
 }
 
 // BUG: no authentication, and it should not exist in this build at all.
@@ -109,9 +110,19 @@ func healthzHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// robotsHandler is the misconfiguration's other tell: disallowing /debug/ in
+// robots.txt is meant to keep search engines from indexing it, but it also
+// tells anyone who checks the file — a very real, very common way these
+// leak — that something lives there.
+func robotsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Write([]byte(robotsTxt))
+}
+
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", indexHandler)
+	mux.HandleFunc("GET /robots.txt", robotsHandler)
 	mux.HandleFunc("GET /debug/config", debugConfigHandler)
 	mux.HandleFunc("GET /healthz", healthzHandler)
 
