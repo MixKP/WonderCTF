@@ -58,12 +58,16 @@ const pageHTML = `<!doctype html>
   button { padding: 10px 18px; background: var(--accent); color: #180a24; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 8px; }
   button:hover { filter: brightness(1.1); }
   pre { background: #0e0a13; border: 1px solid #241a30; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
+  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
 </style>
 </head>
 <body>
   <span class="badge">🔑 OWASP A02</span>
   <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Legacy Account System</h1>
+  <p class="story">IT swears this account system is "basically retired" — right up until
+     someone remembers three teams still depend on it. Nobody has touched the auth code
+     since the founder wrote it.</p>
   <p>A legacy debug endpoint leaks password hashes. They're unsalted MD5 — crack one with
      <a href="https://crackstation.net/" target="_blank" rel="noopener">CrackStation</a>, <code>hashcat</code>, or <code>john</code>,
      then log in with the recovered password.</p>

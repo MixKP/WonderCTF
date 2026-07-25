@@ -39,12 +39,15 @@ const pageHTML = `<!doctype html>
   h1 { color: #f8fafc; font-size: 1.6em; margin: 4px 0 6px; }
   code { background: #1a1608; padding: 2px 6px; border-radius: 3px; color: var(--accent); }
   .banner { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #fde68a; padding: 10px 14px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9em; }
+  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
 </style>
 </head>
 <body>
   <span class="badge">⚙️ OWASP A05</span>
   <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Internal App</h1>
+  <p class="story">A small internal tool nobody remembers building, let alone auditing.
+     If it still works, why touch it?</p>
   <p>This is a small internal tool. Nothing interesting here on the surface — but
   every build ships with its debug tooling intact, whether or not anyone remembered to disable it.</p>
 </body>

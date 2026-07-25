@@ -51,12 +51,15 @@ const pageHTML = `<!doctype html>
   button:hover { filter: brightness(1.1); }
   pre { background: #0a0f1c; border: 1px solid #1c2a42; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
   #clock { color: #9ca3af; font-size: 0.9em; }
+  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
 </style>
 </head>
 <body>
   <span class="badge">📐 OWASP A04</span>
   <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Password Reset</h1>
+  <p class="story">Support kept getting tickets for "I forgot my password," so someone built
+     a self-serve reset flow. Ship first, ask questions later.</p>
   <p>Take over the <code>admin</code> account without ever knowing the password.</p>
   <p id="clock">current time (unix): —</p>
 

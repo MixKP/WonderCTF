@@ -67,12 +67,15 @@ const pageHTML = `<!doctype html>
   button:hover { filter: brightness(1.1); }
   #status { margin: 8px 0; color: #9ca3af; }
   pre { background: #0f0c08; border: 1px solid #2a2116; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
+  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
 </style>
 </head>
 <body>
   <span class="badge">🔓 OWASP A01</span>
   <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Order Lookup</h1>
+  <p class="story">WonderCorp's fulfillment team just shipped a new order tracker so support
+     reps can pull up any customer's order in seconds. It went out fast — maybe too fast.</p>
   <p>Demo accounts: <code>alice / alice123</code>, <code>bob / bob123</code>. Orders are numbered 1001-1003 — you own exactly one of them.</p>
 
   <fieldset>

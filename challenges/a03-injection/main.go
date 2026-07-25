@@ -37,12 +37,15 @@ const pageTemplate = `<!doctype html>
   .ok { background: #052e2b; color: #6ee7b7; }
   .err { background: #2e0505; color: #fca5a5; }
   .banner { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #fde68a; padding: 10px 14px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9em; }
+  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
 </style>
 </head>
 <body>
   <span class="badge">💉 OWASP A03</span>
   <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Staff Login</h1>
+  <p class="story">The intranet's staff portal was thrown together over a long weekend by
+     an intern with database access and a deadline. It's been live for two years.</p>
   <p>This portal's login query is built by string concatenation. Find a way in.</p>
   <form method="POST" action="/login">
     <input type="text" name="username" placeholder="username" autocomplete="off">

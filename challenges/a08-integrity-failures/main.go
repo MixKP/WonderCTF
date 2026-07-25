@@ -48,12 +48,15 @@ const pageHTML = `<!doctype html>
   button:hover { filter: brightness(1.1); }
   pre { background: #081512; border: 1px solid #1a352f; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
   .hint { color: #9ca3af; font-size: 0.9em; }
+  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
 </style>
 </head>
 <body>
   <span class="badge">🧬 OWASP A08</span>
   <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Session Restore</h1>
+  <p class="story">A "fast reconnect" feature so users don't have to log in twice. Someone
+     on the team was very proud of the integrity check they added.</p>
   <p>This app lets clients restore a "signed" session blob for fast reconnects — a base64 JSON
      payload plus a "checksum" that's meant to prove it came from the server.</p>
 

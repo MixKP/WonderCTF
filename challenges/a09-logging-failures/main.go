@@ -41,12 +41,15 @@ const pageHTML = `<!doctype html>
   button:hover { filter: brightness(1.1); }
   pre { background: #0b0e14; border: 1px solid #253044; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
   #progress { color: #9ca3af; margin: 8px 0; }
+  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
 </style>
 </head>
 <body>
   <span class="badge">👁️ OWASP A09</span>
   <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Admin Console</h1>
+  <p class="story">The admin console got a PIN lock after a security review flagged it as
+     "wide open." The review didn't say what a good PIN policy looks like.</p>
   <p>Admin logs in with a 4-digit PIN — 10,000 possibilities, no rate limiting, no lockout.</p>
 
   <fieldset>

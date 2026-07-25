@@ -36,12 +36,15 @@ const PAGE_HTML = `<!doctype html>
   button { padding: 10px 18px; background: var(--accent); color: #042808; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 8px; }
   button:hover { filter: brightness(1.1); }
   pre { background: #0a140b; border: 1px solid #1c3320; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
+  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
 </style>
 </head>
 <body>
   <span class="badge">📦 OWASP A06</span>
   <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Profile Service</h1>
+  <p class="story">The new profile microservice replaced three legacy ones in a single
+     sprint. Whoever wrote it was clearly optimizing for velocity.</p>
   <p>This service ships an outdated, known-vulnerable dependency (see README for the CVE).
      Whatever JSON object you send here gets merged into a default profile server-side.</p>
 

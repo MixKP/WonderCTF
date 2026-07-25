@@ -35,12 +35,15 @@ const pageHTML = `<!doctype html>
   input { display: block; margin: 8px 0; padding: 10px; width: 100%; background: #150c13; border: 1px solid #331226; border-radius: 6px; color: #e5e7eb; font-family: inherit; }
   button { padding: 10px 18px; background: var(--accent); color: #2b0316; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
   button:hover { filter: brightness(1.1); }
+  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
 </style>
 </head>
 <body>
   <span class="badge">🌐 OWASP A10</span>
   <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>URL Preview Tool</h1>
+  <p class="story">Marketing wanted link previews like every other messaging app.
+     Engineering delivered in an afternoon.</p>
   <p>Paste a URL and this service will fetch it for you, server-side.</p>
   <p>This container also runs something on <code>127.0.0.1</code> that's never
   published outside the container — but this service runs inside it too.</p>

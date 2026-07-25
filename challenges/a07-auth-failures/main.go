@@ -115,12 +115,15 @@ const pageHTML = `<!doctype html>
   button { padding: 10px 18px; background: var(--accent); color: #0d0d24; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 8px; }
   button:hover { filter: brightness(1.1); }
   pre { background: #0d0d1f; border: 1px solid #23234a; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+  .story { font-style: italic; color: #cbd5e1; border-left: 2px solid var(--accent); padding-left: 12px; margin: 16px 0; opacity: 0.85; }
 </style>
 </head>
 <body>
   <span class="badge">🪪 OWASP A07</span>
   <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Token-Based Dashboard</h1>
+  <p class="story">Phase one of WonderCorp's single sign-on rollout: "tokens everywhere,
+     verify later." Phase two hasn't been scheduled.</p>
   <p>Demo login: <code>alice / alice123</code> — but alice isn't an admin. <code>GET /api/flag</code> is admin-only.</p>
 
   <fieldset>
