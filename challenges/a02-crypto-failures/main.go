@@ -45,19 +45,24 @@ const pageHTML = `<!doctype html>
 <html>
 <head><title>A02: Cryptographic Failures — Fast Hashes</title>
 <style>
-  body { font-family: monospace; background: #0b0f19; color: #e5e7eb; max-width: 640px; margin: 40px auto; padding: 0 20px; }
-  h1 { color: #22d3ee; }
-  code { background: #131a2b; padding: 2px 6px; border-radius: 3px; }
-  .banner { background: #2e2405; color: #fde68a; padding: 8px 12px; margin-bottom: 20px; border-radius: 4px; }
-  fieldset { border: 1px solid #1f2a44; border-radius: 6px; margin: 16px 0; }
-  legend { padding: 0 6px; color: #9ca3af; }
-  input { display: block; margin: 8px 0; padding: 8px; width: 100%; box-sizing: border-box; background: #131a2b; border: 1px solid #1f2a44; color: #e5e7eb; }
-  button { padding: 8px 16px; background: #0e7490; color: white; border: none; cursor: pointer; }
-  pre { background: #131a2b; padding: 12px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; }
+  :root { --accent: #a855f7; --accent-bg: #3b0764; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Fira Code', ui-monospace, monospace; background: radial-gradient(circle at top, #170f1f, #05070d 65%); color: #e5e7eb; max-width: 680px; margin: 48px auto; padding: 0 20px; line-height: 1.5; }
+  .badge { display: inline-block; font-size: 0.75em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; margin-bottom: 12px; }
+  h1 { color: #f8fafc; font-size: 1.6em; margin: 4px 0 6px; }
+  code { background: #150f1c; padding: 2px 6px; border-radius: 3px; color: var(--accent); }
+  .banner { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #fde68a; padding: 10px 14px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9em; }
+  fieldset { border: 1px solid #241a30; border-radius: 10px; margin: 18px 0; padding: 14px 16px; background: rgba(255,255,255,0.02); }
+  legend { padding: 0 8px; color: var(--accent); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; }
+  input { display: block; margin: 8px 0; padding: 10px; width: 100%; background: #0e0a13; border: 1px solid #241a30; border-radius: 6px; color: #e5e7eb; font-family: inherit; }
+  button { padding: 10px 18px; background: var(--accent); color: #180a24; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 8px; }
+  button:hover { filter: brightness(1.1); }
+  pre { background: #0e0a13; border: 1px solid #241a30; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
 </style>
 </head>
 <body>
-  <div class="banner">⚠️ Intentionally vulnerable training service — OWASP A02: Cryptographic Failures</div>
+  <span class="badge">🔑 OWASP A02</span>
+  <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Legacy Account System</h1>
   <p>A legacy debug endpoint leaks password hashes. They're unsalted MD5 — crack one with
      <a href="https://crackstation.net/" target="_blank" rel="noopener">CrackStation</a>, <code>hashcat</code>, or <code>john</code>,

@@ -32,14 +32,18 @@ const pageHTML = `<!doctype html>
 <html>
 <head><title>A05: Security Misconfiguration — Left the Debug Door Open</title>
 <style>
-  body { font-family: monospace; background: #0b0f19; color: #e5e7eb; max-width: 640px; margin: 40px auto; padding: 0 20px; }
-  h1 { color: #22d3ee; }
-  code { background: #131a2b; padding: 2px 6px; border-radius: 3px; }
-  .banner { background: #2e2405; color: #fde68a; padding: 8px 12px; margin-bottom: 20px; border-radius: 4px; }
+  :root { --accent: #eab308; --accent-bg: #422006; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Fira Code', ui-monospace, monospace; background: radial-gradient(circle at top, #1a1608, #05070d 65%); color: #e5e7eb; max-width: 680px; margin: 48px auto; padding: 0 20px; line-height: 1.5; }
+  .badge { display: inline-block; font-size: 0.75em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; margin-bottom: 12px; }
+  h1 { color: #f8fafc; font-size: 1.6em; margin: 4px 0 6px; }
+  code { background: #1a1608; padding: 2px 6px; border-radius: 3px; color: var(--accent); }
+  .banner { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #fde68a; padding: 10px 14px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9em; }
 </style>
 </head>
 <body>
-  <div class="banner">⚠️ Intentionally vulnerable training service — OWASP A05: Security Misconfiguration</div>
+  <span class="badge">⚙️ OWASP A05</span>
+  <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Internal App</h1>
   <p>This is a small internal tool. Nothing interesting here on the surface — but
   every build ships with its debug tooling intact, whether or not anyone remembered to disable it.</p>

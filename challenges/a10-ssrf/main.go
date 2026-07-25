@@ -24,23 +24,30 @@ const pageHTML = `<!doctype html>
 <html>
 <head><title>A10: SSRF — Fetch Anything</title>
 <style>
-  body { font-family: monospace; background: #0b0f19; color: #e5e7eb; max-width: 640px; margin: 40px auto; padding: 0 20px; }
-  h1 { color: #22d3ee; }
-  code { background: #131a2b; padding: 2px 6px; border-radius: 3px; }
-  .banner { background: #2e2405; color: #fde68a; padding: 8px 12px; margin-bottom: 20px; border-radius: 4px; }
+  :root { --accent: #ec4899; --accent-bg: #500724; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Fira Code', ui-monospace, monospace; background: radial-gradient(circle at top, #1a0f18, #05070d 65%); color: #e5e7eb; max-width: 680px; margin: 48px auto; padding: 0 20px; line-height: 1.5; }
+  .badge { display: inline-block; font-size: 0.75em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; margin-bottom: 12px; }
+  h1 { color: #f8fafc; font-size: 1.6em; margin: 4px 0 6px; }
+  code { background: #1a0f16; padding: 2px 6px; border-radius: 3px; color: var(--accent); }
+  .banner { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #fde68a; padding: 10px 14px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9em; }
+  form { margin: 18px 0; }
+  input { display: block; margin: 8px 0; padding: 10px; width: 100%; background: #150c13; border: 1px solid #331226; border-radius: 6px; color: #e5e7eb; font-family: inherit; }
+  button { padding: 10px 18px; background: var(--accent); color: #2b0316; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  button:hover { filter: brightness(1.1); }
 </style>
 </head>
 <body>
-  <div class="banner">⚠️ Intentionally vulnerable training service — OWASP A10: Server-Side Request Forgery</div>
+  <span class="badge">🌐 OWASP A10</span>
+  <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>URL Preview Tool</h1>
   <p>Paste a URL and this service will fetch it for you, server-side.</p>
   <p>This container also runs something on <code>127.0.0.1</code> that's never
   published outside the container — but this service runs inside it too.</p>
 
-  <form action="/fetch" method="GET" style="margin: 16px 0;">
-    <input name="url" placeholder="https://example.com" autocomplete="off"
-      style="display:block; margin:8px 0; padding:8px; width:100%; box-sizing:border-box; background:#131a2b; border:1px solid #1f2a44; color:#e5e7eb;">
-    <button type="submit" style="padding:8px 16px; background:#0e7490; color:white; border:none; cursor:pointer;">Fetch</button>
+  <form action="/fetch" method="GET">
+    <input name="url" placeholder="https://example.com" autocomplete="off">
+    <button type="submit">Fetch</button>
   </form>
 </body>
 </html>`

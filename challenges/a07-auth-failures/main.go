@@ -101,20 +101,25 @@ const pageHTML = `<!doctype html>
 <html>
 <head><title>A07: Auth Failures — Trust Me, I'm a Token</title>
 <style>
-  body { font-family: monospace; background: #0b0f19; color: #e5e7eb; max-width: 640px; margin: 40px auto; padding: 0 20px; }
-  h1 { color: #22d3ee; }
-  code { background: #131a2b; padding: 2px 6px; border-radius: 3px; }
-  .banner { background: #2e2405; color: #fde68a; padding: 8px 12px; margin-bottom: 20px; border-radius: 4px; }
-  fieldset { border: 1px solid #1f2a44; border-radius: 6px; margin: 16px 0; }
-  legend { padding: 0 6px; color: #9ca3af; }
-  input, textarea { display: block; margin: 8px 0; padding: 8px; width: 100%; box-sizing: border-box; background: #131a2b; border: 1px solid #1f2a44; color: #e5e7eb; font-family: monospace; }
+  :root { --accent: #6366f1; --accent-bg: #26265f; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Fira Code', ui-monospace, monospace; background: radial-gradient(circle at top, #12122a, #05070d 65%); color: #e5e7eb; max-width: 680px; margin: 48px auto; padding: 0 20px; line-height: 1.5; }
+  .badge { display: inline-block; font-size: 0.75em; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; margin-bottom: 12px; }
+  h1 { color: #f8fafc; font-size: 1.6em; margin: 4px 0 6px; }
+  code { background: #12122a; padding: 2px 6px; border-radius: 3px; color: var(--accent); }
+  .banner { background: var(--accent-bg); border-left: 3px solid var(--accent); color: #fde68a; padding: 10px 14px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9em; }
+  fieldset { border: 1px solid #23234a; border-radius: 10px; margin: 18px 0; padding: 14px 16px; background: rgba(255,255,255,0.02); }
+  legend { padding: 0 8px; color: var(--accent); font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; }
+  input, textarea { display: block; margin: 8px 0; padding: 10px; width: 100%; background: #0d0d1f; border: 1px solid #23234a; border-radius: 6px; color: #e5e7eb; font-family: inherit; }
   textarea { height: 50px; }
-  button { padding: 8px 16px; background: #0e7490; color: white; border: none; cursor: pointer; margin-right: 8px; }
-  pre { background: #131a2b; padding: 12px; border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+  button { padding: 10px 18px; background: var(--accent); color: #0d0d24; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-right: 8px; }
+  button:hover { filter: brightness(1.1); }
+  pre { background: #0d0d1f; border: 1px solid #23234a; padding: 14px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
 </style>
 </head>
 <body>
-  <div class="banner">⚠️ Intentionally vulnerable training service — OWASP A07: Auth Failures</div>
+  <span class="badge">🪪 OWASP A07</span>
+  <div class="banner">⚠️ Intentionally vulnerable training service — not for production use</div>
   <h1>Token-Based Dashboard</h1>
   <p>Demo login: <code>alice / alice123</code> — but alice isn't an admin. <code>GET /api/flag</code> is admin-only.</p>
 
