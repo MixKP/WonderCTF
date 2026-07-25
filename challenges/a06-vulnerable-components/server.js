@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 8080
 const app = express()
 app.use(express.json())
 
-const defaultProfile = { theme: 'dark', notifications: true }
+const defaultProfile = { theme: 'dark', notifications: true, isAdmin: false }
 
 const PAGE_HTML = `<!doctype html>
 <html>
@@ -60,6 +60,7 @@ const PAGE_HTML = `<!doctype html>
          sprint. Whoever wrote it was clearly optimizing for velocity.</p>
       <div class="pref-row"><span>Theme</span><span>dark</span></div>
       <div class="pref-row"><span>Notifications</span><span>on</span></div>
+      <div class="pref-row"><span>Admin</span><span>No</span></div>
     </div>
 
     <div class="card">
